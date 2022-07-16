@@ -13,6 +13,22 @@
     Twój nick<br>
     <input id="nick"><br>
     <button id="button">Dołącz</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var button = document.getElementById("button");
+        
+        button.onclick = function() {
+            var code = document.getElementById("code").value;
+            var nick = document.getElementById("nick").value;
+
+            if(!isNaN(code) && nick != "") {
+                var socket = io();
+                console.log({code, nick});
+                socket.emit("join-game", {code, nick});
+            }
+        }
+    </script>
 </div>
 </body>
 </html>
