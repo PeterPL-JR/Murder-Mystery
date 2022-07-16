@@ -6,26 +6,33 @@
     <link rel="stylesheet" href="/style.css" type="text/css">
 </head>
 <body>
+<!-- Elementy strony z grą -->
 <div id="game-container">
-    <canvas id="canvas" width=800 height=600></canvas>
+    <canvas id="canvas" width=864 height=672></canvas>
 </div>
+<!-- Interfejs dołączania do gry -->
 <div id="login-container">
-    <h1>Murder Mystery</h1>
+    <h1>Murder Mystery</h1> 
     Kod gry<br>
-    <input id="code" value="1224"><br>
+    <input id="code" value="1224"><br> 
     Twój nick<br>
     <input id="nick" value="peterpl-jr"><br>
     <button id="button">Dołącz</button>
 
+    <!-- Najważniejsze skrypty -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="/app.js"></script>
+    
+    <!-- Skrypt dla interfejsu dołączania-->
     <script>
         var button = document.getElementById("button");
         
+        // Kod dziejący się po kliknięciu przycisku
         button.onclick = function() {
             var code = document.getElementById("code").value;
             var nick = document.getElementById("nick").value;
 
+            // Dołącz, jeżeli nick nie jest pusty i kod gry jest liczbą
             if(!isNaN(code) && nick != "") {
                 var socket = io();                
                 socket.emit("join-game", {code, nick});

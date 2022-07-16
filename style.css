@@ -1,7 +1,9 @@
+/* Styl przycisku strony dołączania */
 button {
     margin-top: 10px;
 }
 
+/* Styl diva z zawierającego <canvas> */
 #game-container {
     width: max-content;
     margin: auto;
