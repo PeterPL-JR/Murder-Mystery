@@ -1,3 +1,11 @@
 button {
     margin-top: 10px;
 }
+
+#game-container {
+    width: max-content;
+    margin: auto;
+
+    margin-top: 40px;
+    display: none;
+}

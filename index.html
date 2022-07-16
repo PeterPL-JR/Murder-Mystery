@@ -6,15 +6,19 @@
     <link rel="stylesheet" href="/style.css" type="text/css">
 </head>
 <body>
-<div id="container">
+<div id="game-container">
+    <canvas id="canvas" width=800 height=600></canvas>
+</div>
+<div id="login-container">
     <h1>Murder Mystery</h1>
     Kod gry<br>
-    <input id="code"><br>
+    <input id="code" value="1224"><br>
     Twój nick<br>
-    <input id="nick"><br>
+    <input id="nick" value="peterpl-jr"><br>
     <button id="button">Dołącz</button>
 
     <script src="/socket.io/socket.io.js"></script>
+    <script src="/app.js"></script>
     <script>
         var button = document.getElementById("button");
         
@@ -23,9 +27,9 @@
             var nick = document.getElementById("nick").value;
 
             if(!isNaN(code) && nick != "") {
-                var socket = io();
-                console.log({code, nick});
+                var socket = io();                
                 socket.emit("join-game", {code, nick});
+                joinGame();
             }
         }
     </script>
