@@ -14,5 +14,16 @@ app.use(express.static(
     path.join(__dirname, "/")
 ));
 
+io.on("connection", function(socket) {
+    
+    socket.on("join-game", function(data) {
+        socket.playerNick = data.nick;
+        console.log("Gracz " + data.nick + " dolaczuyl do gry!");
+    });
+    socket.on("disconnect", function() {
+        console.log("Niestety gracz " + socket.playerNick + "wyszedl z gry :(");
+    });
+});
+
 server.listen(PORT, function() {
 });
