@@ -11,6 +11,7 @@ const HEIGHT = canvas.height;
 
 // Wielkość pojedynczego kafelka (wyrażona w pikselach)
 const TILE_SIZE = 96;
+const SPEED = 8;
 
 // Wielkość mapy (wyrażona w kafelkach)
 const MAP_WIDTH = WIDTH / TILE_SIZE;
@@ -31,12 +32,29 @@ const tilesNames = [
 ];
 // Tablica z obrazkami kafelków
 const tilesImages = [];
+const keys = {};
+
+const allTheRightMoves = {
+    W: [0, -1],
+    S: [0, 1],
+    A: [-1, 0],
+    D: [1, 0]
+};
 
 function joinGame() {
     document.body.style.backgroundColor = "#121212"; // Zmiana koloru tła
 
     gameContainer.style.display = "inline-block"; // Pokazanie obiektu <canvas>
     loginContainer.style.display = "none"; // Ukrycie interfejsu logowania
+
+    // Wykrywanie, kiedy klawisz został kliknięty
+    document.body.onkeydown = function(event) {
+        keys[event.key.toUpperCase()] = true;
+    }
+    // Wykrywanie, kiedy klawisz został puszczony
+    document.body.onkeyup = function(event) {
+        keys[event.key.toUpperCase()] = false;
+    }
 
     // Przygotuj grę
     loadImages();
@@ -84,13 +102,26 @@ function draw() {
         for(var y = 0; y < MAP_HEIGHT; y++) {
             const tile = tiles[x][y];
 
-            var tileX = xOffset + tile.xPos * TILE_SIZE;
-            var tileY = yOffset + tile.yPos * TILE_SIZE;
+            var tileX = tile.xPos * TILE_SIZE - playerX + xOffset;
+            var tileY = tile.yPos * TILE_SIZE - playerY + yOffset;
             ctx.drawImage(tilesImages[tile.type], tileX, tileY);
         }
     }
     // Renderowanie Gracza
-    ctx.drawImage(playerImg, xOffset + playerX, yOffset + playerY);
+    ctx.drawImage(playerImg, xOffset, yOffset);
+
+    // Poruszanie się gracza
+    for(var keyOfObj in keys) {
+        var playerMove = allTheRightMoves[keyOfObj];
+        // Poruszaj, gry klawisz jest naciśnięty oraz jest to W,S,D lub D
+        if(keys[keyOfObj] && playerMove) {
+            // Poruszaj gracza
+            playerX += playerMove[0] * SPEED;
+            playerY += playerMove[1] * SPEED;
+        }
+    }
+
+    console.log(playerX, playerY);
 }
 
 // Funkcja ładująca pojedynczy obrazek
