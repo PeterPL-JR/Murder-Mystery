@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const path = require("path");
+const { emit } = require("process");
 
 const server = http.createServer(app);
 const {Server} = require("socket.io");
@@ -42,12 +43,14 @@ io.on("connection", function(socket) {
         players.splice(index, 1);
         console.log("Niestety gracz " + playerCode + " wyszedl z gry :(");
     });
-    // Gracz się poruszył
+
     socket.on("player-moved", function(data) {
-        var player = findPlayer(data.playerCode);
-        player.xPos = data.xPos;
-        player.yPos = data.yPos;
-        socket.emit("player-moved", players);     
+        var index = findPlayerIndex(data.playerCode);
+        players[index].xPos = data.xPos;
+        players[index].yPos = data.yPos;
+    });
+    socket.on("get-players", function() {
+        socket.emit("send-players", players);
     });
 });
 

@@ -29,10 +29,13 @@ const yOffset = HEIGHT / 2 - TILE_SIZE / 2;
 // Tablica [x][y] z kafelkami
 var tiles = [];
 
+// Tablica innych graczy
+var otherPlayers = [];
+
 // Dane gracza
 var playerX = 0;
 var playerY = 0;
-var nick
+var nick;
 
 // Ruch gracza
 var direction = 3;
@@ -77,6 +80,10 @@ function joinGame(data) {
     socket = data.socket;
     nick = data.nick;
     playerCode = data.playerCode;
+
+    socket.on("send-players", function(data) {
+        otherPlayers = data;
+    });
 
     document.body.style.backgroundColor = "#121212"; // Zmiana koloru tła
     gameContainer.style.display = "inline-block"; // Pokazanie obiektu <canvas>
@@ -164,10 +171,8 @@ function draw() {
         }
     }
 
-    // Renderowanie Innych Graczy
-    socket.on("player-moved", function(data) {
-        renderPlayers(data);
-    });
+    socket.emit("get-players");
+    renderPlayers();
 
     // Renderowanie Gracza
     ctx.drawImage(playerImg, xOffset, yOffset);
@@ -196,6 +201,14 @@ function draw() {
 
 // Funkcja renderująca graczy
 function renderPlayers() {
+    for(var player of otherPlayers) {
+        if(player.playerCode == playerCode) continue;
+
+        var xPos = player.xPos - playerX + xOffset;
+        var yPos = player.yPos - playerY + yOffset;
+
+        ctx.drawImage(textures[0], xPos, yPos);
+    }
 }
 
 // Funkcja ustawiająca teksturę
