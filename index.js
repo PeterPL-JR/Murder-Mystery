@@ -10,7 +10,8 @@ const io = new Server(server);
 
 // Zmienne 
 const PORT = 4000; // Port
- 
+const players = [];
+
 // Tworzenie aplikacji
 app.use(express.static(
     path.join(__dirname, "/")
@@ -20,15 +21,49 @@ app.use(express.static(
 io.on("connection", function(socket) {
     // Dołączenie gracza do gry
     socket.on("join-game", function(data) {
+        socket.playerCode = data.playerCode
         socket.playerNick = data.nick;
-        console.log("Gracz " + data.nick + " dolaczuyl do gry!");
+        socket.gameCode = data.code;
+
+        players.push({
+            playerCode: data.playerCode,
+            nick: data.nick,
+            gameCode: data.code,
+            xPos: 0,
+            yPos: 0
+        });
+
+        console.log("Gracz " + data.nick + " dolaczyl do gry!");
     });
     // Wyjście gracza z gry
     socket.on("disconnect", function() {
-        console.log("Niestety gracz " + socket.playerNick + "wyszedl z gry :(");
+        var playerCode = socket.playerCode;
+        var index = findPlayerIndex(playerCode);
+        players.splice(index, 1);
+        console.log("Niestety gracz " + playerCode + " wyszedl z gry :(");
+    });
+    // Gracz się poruszył
+    socket.on("player-moved", function(data) {
+        var player = findPlayer(data.playerCode);
+        player.xPos = data.xPos;
+        player.yPos = data.yPos;
+        socket.emit("player-moved", players);     
     });
 });
 
 // Uruchamianie programu na odpowiednim porcie
 server.listen(PORT, function() {
 });
+
+// Funkcja wyszukująca gracza w tablicy na podstawie jego kodu
+function findPlayerIndex(code) {
+    return players.findIndex(function(obj) {
+        return obj.playerCode == code;
+    });
+}
+
+function findPlayer(code) {
+    return players.find(function(obj) {
+        return obj.playerCode == code;
+    });
+}

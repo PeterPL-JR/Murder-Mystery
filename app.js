@@ -1,6 +1,10 @@
 var gameContainer = document.getElementById("game-container"); // Elementy strony z grą
 var loginContainer = document.getElementById("login-container"); // Interfejs dołączania do gry
 
+// Zmienne do komunikacji z serwerem
+var socket;
+var playerCode;
+
 // Zmienne obiektu <canvas>
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
@@ -25,17 +29,18 @@ const yOffset = HEIGHT / 2 - TILE_SIZE / 2;
 // Tablica [x][y] z kafelkami
 var tiles = [];
 
-// Współrzędne gracza
+// Dane gracza
 var playerX = 0;
 var playerY = 0;
+var nick
 
 // Ruch gracza
-var direction = 0;
+var direction = 3;
 var moving = false;
 var movingTime = 0;
 
 // Aktualna textura gracza
-var playerImg = createImage("player.png");
+var playerImg;
 
 // Rodzaje używanych kafelków
 const tilesNames = [
@@ -68,9 +73,12 @@ const textures = [];
 const movingTextures1 = [];
 const movingTextures2 = [];
 
-function joinGame() {
-    document.body.style.backgroundColor = "#121212"; // Zmiana koloru tła
+function joinGame(data) {
+    socket = data.socket;
+    nick = data.nick;
+    playerCode = data.playerCode;
 
+    document.body.style.backgroundColor = "#121212"; // Zmiana koloru tła
     gameContainer.style.display = "inline-block"; // Pokazanie obiektu <canvas>
     loginContainer.style.display = "none"; // Ukrycie interfejsu logowania
 
@@ -104,6 +112,7 @@ function loadImages() {
         movingTextures1.push(createImage("player/" + dir + "_go1.png"));
         movingTextures2.push(createImage("player/" + dir + "_go2.png"));
     }
+    playerImg = textures[direction];
 }
 
 // Funkcja tworząca tablicę z kafelkami
@@ -127,6 +136,12 @@ function move(x, y) {
     playerY += y * SPEED;
     playerImg = textures[direction];
     moving = true;
+
+    socket.emit("player-moved", {
+        xPos: playerX, 
+        yPos: playerY,
+        playerCode
+    });
 }
 
 // Funkcja renderująca
@@ -148,6 +163,12 @@ function draw() {
             ctx.drawImage(tilesImages[tile.type], tileX, tileY);
         }
     }
+
+    // Renderowanie Innych Graczy
+    socket.on("player-moved", function(data) {
+        renderPlayers(data);
+    });
+
     // Renderowanie Gracza
     ctx.drawImage(playerImg, xOffset, yOffset);
 
@@ -173,6 +194,10 @@ function draw() {
     }
 }
 
+// Funkcja renderująca graczy
+function renderPlayers() {
+}
+
 // Funkcja ustawiająca teksturę
 function setTexture() {
     if(moving) {
@@ -180,16 +205,4 @@ function setTexture() {
     } else {
         playerImg = textures[direction];
     }
-}
-
-// Funkcja ładująca pojedynczy obrazek
-function createImage(path) {
-    var image = document.createElement("img");
-    image.src = "images/" + path;
-    return image;
-}
-
-// Funkcja zwracająca losową liczbę z przedziału od MIN do MAX włącznie
-function getRandom(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
