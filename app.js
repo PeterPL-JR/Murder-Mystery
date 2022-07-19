@@ -23,8 +23,8 @@ const MAP_WIDTH = WIDTH / TILE_SIZE;
 const MAP_HEIGHT = HEIGHT / TILE_SIZE;
 
 // Offsety (renderowanie gracza na środku planszy)
-const xOffset = WIDTH / 2 - TILE_SIZE / 2;
-const yOffset = HEIGHT / 2 - TILE_SIZE / 2;
+const X_OFFSET = WIDTH / 2 - TILE_SIZE / 2;
+const Y_OFFSET = HEIGHT / 2 - TILE_SIZE / 2;
 
 // Tablica [x][y] z kafelkami
 var tiles = [];
@@ -165,8 +165,13 @@ function draw() {
     renderTiles();
     renderPlayers();
 
+    ctx.font = "40px Verdana";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "center";
+    ctx.fillText(nick, WIDTH / 2, Y_OFFSET - 18);
+
     // Renderowanie Gracza
-    ctx.drawImage(playerImg, xOffset, yOffset);
+    ctx.drawImage(playerImg, X_OFFSET, Y_OFFSET);
 
     // Poruszanie się gracza
     for (var keyOfObj in keys) {
@@ -194,8 +199,8 @@ function renderPlayers() {
     for (var player of otherPlayers) {
         if (player.playerCode == playerCode) continue;
 
-        var xPos = player.xPos - playerX + xOffset;
-        var yPos = player.yPos - playerY + yOffset;
+        var xPos = player.xPos - playerX + X_OFFSET;
+        var yPos = player.yPos - playerY + Y_OFFSET;
         var dir = player.direction;
 
         var playerTex;
@@ -205,6 +210,14 @@ function renderPlayers() {
             playerTex = textures[dir];
         }
         ctx.drawImage(playerTex, xPos, yPos);
+        
+        ctx.font = "40px Verdana";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+
+        var textX = xPos + TILE_SIZE / 2;
+        var textY = yPos - 18;
+        ctx.fillText(player.nick, textX, textY);
     }
 }
 
@@ -214,8 +227,8 @@ function renderTiles() {
         for (var y = 0; y < MAP_HEIGHT; y++) {
             const tile = tiles[x][y];
 
-            var tileX = tile.xPos * TILE_SIZE - playerX + xOffset;
-            var tileY = tile.yPos * TILE_SIZE - playerY + yOffset;
+            var tileX = tile.xPos * TILE_SIZE - playerX + X_OFFSET;
+            var tileY = tile.yPos * TILE_SIZE - playerY + Y_OFFSET;
             ctx.drawImage(tilesImages[tile.type], tileX, tileY);
         }
     }
