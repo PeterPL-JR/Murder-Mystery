@@ -3,7 +3,6 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const path = require("path");
-const { emit } = require("process");
 
 const server = http.createServer(app);
 const {Server} = require("socket.io");
@@ -31,7 +30,10 @@ io.on("connection", function(socket) {
             nick: data.nick,
             gameCode: data.code,
             xPos: 0,
-            yPos: 0
+            yPos: 0,
+            direction: 3,
+            moving: false,
+            movingIndex: -1
         });
 
         console.log("Gracz " + data.nick + " dolaczyl do gry!");
@@ -48,10 +50,13 @@ io.on("connection", function(socket) {
         var index = findPlayerIndex(data.playerCode);
         players[index].xPos = data.xPos;
         players[index].yPos = data.yPos;
+        players[index].direction = data.direction;
+        players[index].moving = data.moving;
+        players[index].movingIndex = data.movingIndex;
     });
-    socket.on("get-players", function() {
+    setInterval(function() {
         socket.emit("send-players", players);
-    });
+    }, 15);
 });
 
 // Uruchamianie programu na odpowiednim porcie
