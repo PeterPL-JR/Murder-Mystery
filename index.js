@@ -69,7 +69,6 @@ function findPlayerIndex(code) {
         return obj.playerCode == code;
     });
 }
-
 function findPlayer(code) {
     return players.find(function(obj) {
         return obj.playerCode == code;

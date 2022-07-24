@@ -1,6 +1,9 @@
 var gameContainer = document.getElementById("game-container"); // Elementy strony z grą
 var loginContainer = document.getElementById("login-container"); // Interfejs dołączania do gry
 
+var playersImages = [];
+const CHARACTERS = 1;
+
 // Zmienne do komunikacji z serwerem
 var socket;
 var playerCode;
@@ -15,6 +18,7 @@ const HEIGHT = canvas.height;
 
 // Wielkość pojedynczego kafelka (wyrażona w pikselach)
 const TILE_SIZE = 96;
+const PLAYER_SIZE = 160;
 const SPEED = 8;
 const TEX_SPEED = SPEED * 4;
 
@@ -23,8 +27,8 @@ const MAP_WIDTH = WIDTH / TILE_SIZE;
 const MAP_HEIGHT = HEIGHT / TILE_SIZE;
 
 // Offsety (renderowanie gracza na środku planszy)
-const X_OFFSET = WIDTH / 2 - TILE_SIZE / 2;
-const Y_OFFSET = HEIGHT / 2 - TILE_SIZE / 2;
+const X_OFFSET = WIDTH / 2 - PLAYER_SIZE / 2;
+const Y_OFFSET = HEIGHT / 2 - PLAYER_SIZE / 2;
 
 // Tablica [x][y] z kafelkami
 var tiles = [];
@@ -38,13 +42,10 @@ var playerY = 0;
 var nick;
 
 // Ruch gracza
-var direction = 3;
+var direction = 0;
 var moving = false;
 var movingTime = 0;
 var movingIndex = -1;
-
-// Aktualna textura gracza
-var playerImg;
 
 // Rodzaje używanych kafelków
 const tilesNames = [
@@ -56,12 +57,12 @@ const keys = {};
 
 // Tablica kierunków
 const dirs = [
-    "up", "down", "left", "right"
+    "right", "left", "down", "up"
 ];
 
 // Klawisze
 const movingKeys = [
-    "W", "S", "A", "D"
+    "D", "A", "S", "W"
 ];
 
 // Klawisze i kierunki poruszania
@@ -123,9 +124,13 @@ function loadImages() {
 
     // Ładowanie tektur gracza
     for (var dir of dirs) {
-        textures.push(createImage("player/" + dir + ".png"));
-        movingTextures1.push(createImage("player/" + dir + "_go1.png"));
-        movingTextures2.push(createImage("player/" + dir + "_go2.png"));
+        textures.push(createImage("players/" + dir + ".png"));
+        movingTextures1.push(createImage("players/" + dir + "_go1.png"));
+        movingTextures2.push(createImage("players/" + dir + "_go2.png"));
+    }
+
+    for(var i = 0; i < CHARACTERS; i++) {
+        playersImages[i] = createImage("players/player" + (i + 1) + ".png");
     }
     playerImg = textures[direction];
 }
@@ -171,7 +176,7 @@ function draw() {
     ctx.fillText(nick, WIDTH / 2, Y_OFFSET - 18);
 
     // Renderowanie Gracza
-    ctx.drawImage(playerImg, X_OFFSET, Y_OFFSET);
+    drawPlayer(X_OFFSET, Y_OFFSET, 0, direction, movingIndex);
 
     // Poruszanie się gracza
     for (var keyOfObj in keys) {
@@ -186,11 +191,10 @@ function draw() {
             move(moveX, moveY);
         }
     }
-    setTexture();
 
     if (moving) {
         movingTime++;
-        movingIndex = movingTime % TEX_SPEED < TEX_SPEED / 2;
+        movingIndex = (movingTime % TEX_SPEED < TEX_SPEED / 2) ? 0 : 1;
     }
 }
 
@@ -201,21 +205,13 @@ function renderPlayers() {
 
         var xPos = player.xPos - playerX + X_OFFSET;
         var yPos = player.yPos - playerY + Y_OFFSET;
-        var dir = player.direction;
-
-        var playerTex;
-        if (player.moving) {
-            playerTex = (player.movingIndex) ? movingTextures1[dir] : movingTextures2[dir];
-        } else {
-            playerTex = textures[dir];
-        }
-        ctx.drawImage(playerTex, xPos, yPos);
+        drawPlayer(xPos, yPos, 0, player.direction, player.movingIndex);
         
         ctx.font = "40px Verdana";
         ctx.fillStyle = "white";
         ctx.textAlign = "center";
 
-        var textX = xPos + TILE_SIZE / 2;
+        var textX = xPos + PLAYER_SIZE / 2;
         var textY = yPos - 18;
         ctx.fillText(player.nick, textX, textY);
     }
@@ -244,11 +240,9 @@ function send() {
     });
 }
 
-// Funkcja ustawiająca teksturę
-function setTexture() {
-    if (moving) {
-        playerImg = (movingIndex) ? movingTextures1[direction] : movingTextures2[direction];
-    } else {
-        playerImg = textures[direction];
-    }
+function drawPlayer(x, y, textureIndex, direction, movingIndex) {
+    var texture = playersImages[textureIndex];
+    var xOffset = direction;
+    var yOffset = movingIndex + 1;
+    ctx.drawImage(texture, xOffset * PLAYER_SIZE, yOffset * PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE, x, y, PLAYER_SIZE, PLAYER_SIZE);
 }
