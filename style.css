@@ -11,3 +11,16 @@ button {
     margin-top: 40px;
     display: none;
 }
+
+#player-div {
+    width: 160px;
+    height: 160px;
+    overflow: hidden;
+}
+
+#player-choose-div *{
+    float: left;
+}
+#player-choose-div *::selection {
+    background-color: #0000;
+}

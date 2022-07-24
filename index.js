@@ -24,6 +24,7 @@ io.on("connection", function(socket) {
         socket.playerCode = data.playerCode
         socket.playerNick = data.nick;
         socket.gameCode = data.code;
+        socket.skin = data.choosenSkin;
 
         players.push({
             playerCode: data.playerCode,
@@ -31,9 +32,10 @@ io.on("connection", function(socket) {
             gameCode: data.code,
             xPos: 0,
             yPos: 0,
-            direction: 3,
+            direction: 0,
             moving: false,
-            movingIndex: -1
+            movingIndex: -1,
+            skin: socket.skin
         });
 
         console.log("Gracz " + data.nick + " dolaczyl do gry!");

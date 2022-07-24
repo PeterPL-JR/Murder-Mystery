@@ -1,8 +1,8 @@
 var gameContainer = document.getElementById("game-container"); // Elementy strony z grą
 var loginContainer = document.getElementById("login-container"); // Interfejs dołączania do gry
 
-var playersImages = [];
-const CHARACTERS = 1;
+var skinsImages = [];
+const SKINS = 13;
 
 // Zmienne do komunikacji z serwerem
 var socket;
@@ -39,6 +39,7 @@ var otherPlayers = [];
 // Dane gracza
 var playerX = 0;
 var playerY = 0;
+var skinIndex = 0;
 var nick;
 
 // Ruch gracza
@@ -82,6 +83,7 @@ function joinGame(data) {
     socket = data.socket;
     nick = data.nick;
     playerCode = data.playerCode;
+    skinIndex = data.choosenSkin;
 
     socket.on("send-players", function (data) {
         otherPlayers = data;
@@ -123,16 +125,9 @@ function loadImages() {
     }
 
     // Ładowanie tektur gracza
-    for (var dir of dirs) {
-        textures.push(createImage("players/" + dir + ".png"));
-        movingTextures1.push(createImage("players/" + dir + "_go1.png"));
-        movingTextures2.push(createImage("players/" + dir + "_go2.png"));
+    for(var i = 0; i < SKINS; i++) {
+        skinsImages[i] = createImage("players/player" + (i + 1) + ".png");
     }
-
-    for(var i = 0; i < CHARACTERS; i++) {
-        playersImages[i] = createImage("players/player" + (i + 1) + ".png");
-    }
-    playerImg = textures[direction];
 }
 
 // Funkcja tworząca tablicę z kafelkami
@@ -154,7 +149,6 @@ function initTiles() {
 function move(x, y) {
     playerX += x * SPEED;
     playerY += y * SPEED;
-    playerImg = textures[direction];
     moving = true;
     send();
 }
@@ -176,7 +170,7 @@ function draw() {
     ctx.fillText(nick, WIDTH / 2, Y_OFFSET - 18);
 
     // Renderowanie Gracza
-    drawPlayer(X_OFFSET, Y_OFFSET, 0, direction, movingIndex);
+    drawPlayer(X_OFFSET, Y_OFFSET, skinIndex, direction, movingIndex);
 
     // Poruszanie się gracza
     for (var keyOfObj in keys) {
@@ -205,7 +199,7 @@ function renderPlayers() {
 
         var xPos = player.xPos - playerX + X_OFFSET;
         var yPos = player.yPos - playerY + Y_OFFSET;
-        drawPlayer(xPos, yPos, 0, player.direction, player.movingIndex);
+        drawPlayer(xPos, yPos, player.skin, player.direction, player.movingIndex);
         
         ctx.font = "40px Verdana";
         ctx.fillStyle = "white";
@@ -241,7 +235,7 @@ function send() {
 }
 
 function drawPlayer(x, y, textureIndex, direction, movingIndex) {
-    var texture = playersImages[textureIndex];
+    var texture = skinsImages[textureIndex];
     var xOffset = direction;
     var yOffset = movingIndex + 1;
     ctx.drawImage(texture, xOffset * PLAYER_SIZE, yOffset * PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE, x, y, PLAYER_SIZE, PLAYER_SIZE);

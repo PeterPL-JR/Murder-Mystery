@@ -17,6 +17,12 @@
     <input id="code" value="1224"><br> 
     Twój nick<br>
     <input id="nick" value="PeterPLJR"><br>
+    <div id="player-choose-div">
+        <div id="arrow1"><</div>
+        <div id="player-div"></div>
+        <div id="arrow2">></div>
+    </div>
+    <div style="clear: both;"></div>
     <button id="button">Dołącz</button>
 
     <!-- Najważniejsze skrypty -->
@@ -25,24 +31,7 @@
     <script src="/app.js"></script>
     
     <!-- Skrypt dla interfejsu dołączania-->
-    <script>
-        var button = document.getElementById("button");
-
-        // Kod dziejący się po kliknięciu przycisku
-        button.onclick = function() {
-            var code = document.getElementById("code").value;
-            var nick = document.getElementById("nick").value;
-            var playerCode = getRandom(1_000_000_000_000_000, 9_999_999_999_999_999);
-
-            // Dołącz, jeżeli nick nie jest pusty i kod gry jest liczbą
-            if(!isNaN(code) && nick != "") {
-                var socket = io();                
-                socket.emit("join-game", {code, nick, playerCode});
-                joinGame({socket, nick, playerCode});
-            }
-        }
-        button.click(); // DELETE
-    </script>
+    <script src="/login.js"></script>
 </div>
 </body>
 </html>
