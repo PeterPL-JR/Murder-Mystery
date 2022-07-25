@@ -40,7 +40,9 @@ var otherPlayers = [];
 var playerX = 0;
 var playerY = 0;
 var skinIndex = 0;
+
 var nick;
+var gameCode;
 
 // Ruch gracza
 var direction = 0;
@@ -84,6 +86,7 @@ function joinGame(data) {
     nick = data.nick;
     playerCode = data.playerCode;
     skinIndex = data.choosenSkin;
+    gameCode = data.code;
 
     socket.on("send-players", function (data) {
         otherPlayers = data;
@@ -229,7 +232,8 @@ function send() {
         xPos: playerX,
         yPos: playerY,
         playerCode, direction,
-        moving, movingIndex
+        moving, movingIndex,
+        gameCode
     });
 }
 

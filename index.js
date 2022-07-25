@@ -10,7 +10,7 @@ const io = new Server(server);
 
 // Zmienne 
 const PORT = 4000; // Port
-const players = [];
+const rooms = {};
 
 // Tworzenie aplikacji
 app.use(express.static(
@@ -21,15 +21,22 @@ app.use(express.static(
 io.on("connection", function(socket) {
     // Dołączenie gracza do gry
     socket.on("join-game", function(data) {
+        var gameCode = data.code;
+        socket.join(gameCode);
+
+        if(Object.keys(rooms).indexOf(gameCode) == -1) {
+            rooms[gameCode] = [];
+        }
+
         socket.playerCode = data.playerCode
         socket.playerNick = data.nick;
-        socket.gameCode = data.code;
         socket.skin = data.choosenSkin;
+        socket.gameCode = gameCode;
 
-        players.push({
+        rooms[gameCode].push({
             playerCode: data.playerCode,
             nick: data.nick,
-            gameCode: data.code,
+            gameCode: gameCode,
             xPos: 0,
             yPos: 0,
             direction: 0,
@@ -37,27 +44,36 @@ io.on("connection", function(socket) {
             movingIndex: -1,
             skin: socket.skin
         });
-
-        console.log("Gracz " + data.nick + " dolaczyl do gry!");
     });
     // Wyjście gracza z gry
     socket.on("disconnect", function() {
         var playerCode = socket.playerCode;
-        var index = findPlayerIndex(playerCode);
-        players.splice(index, 1);
-        console.log("Niestety gracz " + playerCode + " wyszedl z gry :(");
+        var gameCode = socket.gameCode;
+
+        var index = findPlayerIndex(rooms[gameCode], playerCode);
+        rooms[gameCode].splice(index, 1);
+
+        if(rooms[gameCode].length == 0) {
+            delete rooms[gameCode];
+        }
     });
 
     socket.on("player-moved", function(data) {
-        var index = findPlayerIndex(data.playerCode);
-        players[index].xPos = data.xPos;
-        players[index].yPos = data.yPos;
-        players[index].direction = data.direction;
-        players[index].moving = data.moving;
-        players[index].movingIndex = data.movingIndex;
+        var gameCode = data.gameCode;
+        var room = rooms[gameCode];
+        var index = findPlayerIndex(room, data.playerCode);
+
+        room[index].xPos = data.xPos;
+        room[index].yPos = data.yPos;
+        room[index].direction = data.direction;
+        room[index].moving = data.moving;
+        room[index].movingIndex = data.movingIndex;
     });
     setInterval(function() {
-        socket.emit("send-players", players);
+        for(var name in rooms) {
+            var room = rooms[name];
+            socket.to(name).emit("send-players", room);
+        }
     }, 15);
 });
 
@@ -66,13 +82,13 @@ server.listen(PORT, function() {
 });
 
 // Funkcja wyszukująca gracza w tablicy na podstawie jego kodu
-function findPlayerIndex(code) {
-    return players.findIndex(function(obj) {
+function findPlayerIndex(room, code) {
+    return room.findIndex(function(obj) {
         return obj.playerCode == code;
     });
 }
-function findPlayer(code) {
-    return players.find(function(obj) {
+function findPlayer(room, code) {
+    return room.find(function(obj) {
         return obj.playerCode == code;
     });
 }

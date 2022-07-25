@@ -23,7 +23,7 @@ button.onclick = function () {
     if (!isNaN(code) && nick != "") {
         var socket = io();
         socket.emit("join-game", { code, nick, playerCode, choosenSkin });
-        joinGame({ socket, nick, playerCode, choosenSkin });
+        joinGame({ socket, nick, playerCode, choosenSkin, code });
     }
 }
 switchSkin(0);
