@@ -1,7 +1,7 @@
 var choosenSkin = 0;
 
 var button = document.getElementById("button");
-var textureDiv = document.getElementById("player-div");
+var textureDiv = document.getElementById("skin-div");
 
 var arrow1 = document.getElementById("arrow1");
 var arrow2 = document.getElementById("arrow2");

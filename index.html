@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Murder Mystery</title>
     <link rel="stylesheet" href="/style.css" type="text/css">
+    <link rel="stylesheet" href="/login.css" type="text/css">
 </head>
 <body>
 <!-- Elementy strony z grą -->
@@ -13,17 +14,20 @@
 <!-- Interfejs dołączania do gry -->
 <div id="login-container">
     <h1>Murder Mystery</h1> 
-    Kod gry<br>
-    <input id="code" value="1224"><br> 
-    Twój nick<br>
-    <input id="nick" value="PeterPLJR"><br>
-    <div id="player-choose-div">
+    <h2>by <span>PeterPL</span></h2>
+    <div id="inputs-div">
+        Kod gry<br>
+        <input id="code" value="1224" spellcheck="false"><br> 
+        Twój nick<br>
+        <input id="nick" value="PeterPLJR" spellcheck="false"><br>
+        <div style="clear: both;"></div>
+        <button id="button">Dołącz</button>
+    </div>
+    <div id="skin-choose-div">
         <div id="arrow1"><</div>
-        <div id="player-div"></div>
+        <div id="skin-div"></div>
         <div id="arrow2">></div>
     </div>
-    <div style="clear: both;"></div>
-    <button id="button">Dołącz</button>
 
     <!-- Najważniejsze skrypty -->
     <script src="/socket.io/socket.io.js"></script>

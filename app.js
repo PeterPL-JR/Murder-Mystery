@@ -89,7 +89,6 @@ function joinGame(data) {
         otherPlayers = data;
     });
 
-    document.body.style.backgroundColor = "#121212"; // Zmiana koloru tła
     gameContainer.style.display = "inline-block"; // Pokazanie obiektu <canvas>
     loginContainer.style.display = "none"; // Ukrycie interfejsu logowania
 
@@ -158,7 +157,7 @@ function draw() {
     requestAnimationFrame(draw);
 
     // Czyszczenie ekranu
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "#121212";
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
     renderTiles();
