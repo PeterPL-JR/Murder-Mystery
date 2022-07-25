@@ -31,8 +31,8 @@ switchSkin(0);
 
 function switchSkin(direction) {
     choosenSkin += direction;
-    if(choosenSkin >= SKINS) choosenSkin = 0;
-    if(choosenSkin < 0) choosenSkin = SKINS - 1;
+    if(choosenSkin >= _SKINS) choosenSkin = 0;
+    if(choosenSkin < 0) choosenSkin = _SKINS - 1;
 
     textureDiv.innerHTML = `<img src='images/players/player${choosenSkin + 1}.png'>`;
 }

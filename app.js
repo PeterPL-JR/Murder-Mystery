@@ -2,7 +2,8 @@ var gameContainer = document.getElementById("game-container"); // Elementy stron
 var loginContainer = document.getElementById("login-container"); // Interfejs dołączania do gry
 
 var skinsImages = [];
-const SKINS = 13;
+const _SKINS = 13;
+const _TILES = 24;
 
 // Zmienne do komunikacji z serwerem
 var socket;
@@ -23,8 +24,7 @@ const SPEED = 8;
 const TEX_SPEED = SPEED * 4;
 
 // Wielkość mapy (wyrażona w kafelkach)
-const MAP_WIDTH = WIDTH / TILE_SIZE;
-const MAP_HEIGHT = HEIGHT / TILE_SIZE;
+const MAP_SIZE = 40;
 
 // Offsety (renderowanie gracza na środku planszy)
 const X_OFFSET = WIDTH / 2 - PLAYER_SIZE / 2;
@@ -37,8 +37,8 @@ var tiles = [];
 var otherPlayers = [];
 
 // Dane gracza
-var playerX = 0;
-var playerY = 0;
+var playerX = MAP_SIZE * TILE_SIZE / 2 - PLAYER_SIZE / 2;
+var playerY = MAP_SIZE * TILE_SIZE / 2 - PLAYER_SIZE / 2;
 var skinIndex = 0;
 
 var nick;
@@ -50,10 +50,6 @@ var moving = false;
 var movingTime = 0;
 var movingIndex = -1;
 
-// Rodzaje używanych kafelków
-const tilesNames = [
-    "grass", "wall"
-];
 // Tablica z obrazkami kafelków
 const tilesImages = [];
 const keys = {};
@@ -91,6 +87,15 @@ function joinGame(data) {
     socket.on("send-players", function (data) {
         otherPlayers = data;
     });
+    socket.on("send-map", function (data) {
+        initTiles(data.data);
+
+        // Przygotuj grę
+        loadImages();
+
+        // Rozpocznij grę!
+        draw();
+    });
 
     gameContainer.style.display = "inline-block"; // Pokazanie obiektu <canvas>
     loginContainer.style.display = "none"; // Ukrycie interfejsu logowania
@@ -110,37 +115,30 @@ function joinGame(data) {
             send();
         }
     }
-
-    // Przygotuj grę
-    loadImages();
-    initTiles();
-
-    // Rozpocznij grę!
-    draw();
 }
 
 // Funkcja ładowania obrazków
 function loadImages() {
     // Ładowanie kafelków
-    for (var i = 0; i < tilesNames.length; i++) {
-        tilesImages[i] = createImage(tilesNames[i] + ".png");
+    for (var i = 0; i < _TILES; i++) {
+        tilesImages[i] = createImage("tiles/tile" + (i + 1) + ".png");
     }
 
     // Ładowanie tektur gracza
-    for(var i = 0; i < SKINS; i++) {
+    for(var i = 0; i < _SKINS; i++) {
         skinsImages[i] = createImage("players/player" + (i + 1) + ".png");
     }
 }
 
 // Funkcja tworząca tablicę z kafelkami
-function initTiles() {
-    for (var x = 0; x < MAP_WIDTH; x++) {
-        tiles[x] = [];
-        for (var y = 0; y < MAP_HEIGHT; y++) {
-            var tileType = getRandom(0, 1);
-            tiles[x][y] = {
-                xPos: x - 4,
-                yPos: y - 3,
+function initTiles(tilesData) {
+    for (var y = 0; y < MAP_SIZE; y++) {
+        tiles[y] = [];
+        for (var x = 0; x < MAP_SIZE; x++) {
+            var tileType = tilesData[y][x];
+            tiles[y][x] = {
+                xPos: x,
+                yPos: y,
                 type: tileType
             };
         }
@@ -215,8 +213,8 @@ function renderPlayers() {
 
 // Funkcja renderująca kafelki
 function renderTiles() {
-    for (var x = 0; x < MAP_WIDTH; x++) {
-        for (var y = 0; y < MAP_HEIGHT; y++) {
+    for (var x = 0; x < MAP_SIZE; x++) {
+        for (var y = 0; y < MAP_SIZE; y++) {
             const tile = tiles[x][y];
 
             var tileX = tile.xPos * TILE_SIZE - playerX + X_OFFSET;

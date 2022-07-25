@@ -41,6 +41,7 @@ io.on("connection", function(socket) {
         if(Object.keys(rooms).indexOf(gameCode) == -1) {
             createRoom(gameCode);
         }
+        socket.emit("send-map", mapsObjs[maps[gameCode]]);
 
         socket.playerCode = data.playerCode
         socket.playerNick = data.nick;
