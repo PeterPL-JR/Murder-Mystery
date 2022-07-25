@@ -3,6 +3,7 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const path = require("path");
+const files = require("fs");
 
 const server = http.createServer(app);
 const {Server} = require("socket.io");
@@ -10,12 +11,25 @@ const io = new Server(server);
 
 // Zmienne 
 const PORT = 4000; // Port
+const MAPS = 4;
+
 const rooms = {};
+const maps = {};
+
+// Mapy
+const mapsFilesNames = [
+    "tavern", "castle", "eqypt", "islands"
+];
+const mapsNames = [
+    "Tawerna", "Zamek", "Egipt", "Wyspy"
+];
+const mapsObjs = [];
 
 // Tworzenie aplikacji
 app.use(express.static(
     path.join(__dirname, "/")
 ));
+initMaps();
 
 // Kod dziejący się po uruchomieniu strony
 io.on("connection", function(socket) {
@@ -25,7 +39,7 @@ io.on("connection", function(socket) {
         socket.join(gameCode);
 
         if(Object.keys(rooms).indexOf(gameCode) == -1) {
-            rooms[gameCode] = [];
+            createRoom(gameCode);
         }
 
         socket.playerCode = data.playerCode
@@ -81,6 +95,31 @@ io.on("connection", function(socket) {
 server.listen(PORT, function() {
 });
 
+function createRoom(gameCode) {
+    var mapIndex = getRandom(0, MAPS - 1);
+    rooms[gameCode] = [];
+    maps[gameCode] = mapIndex;
+}
+
+function initMaps() {
+    for(var i = 0; i < MAPS; i++) {
+        initMap(i);
+    }
+}
+
+function initMap(index) {
+    var mapFileName = mapsFilesNames[index];
+    var mapName = mapsNames[index];
+
+    files.readFile("maps/map_" + mapFileName + ".json", "utf-8", function(error, data) {
+        var obj = JSON.parse(data);
+        mapsObjs.push({
+            name: mapName,
+            data: obj
+        });
+    });
+}
+
 // Funkcja wyszukująca gracza w tablicy na podstawie jego kodu
 function findPlayerIndex(room, code) {
     return room.findIndex(function(obj) {
@@ -91,4 +130,8 @@ function findPlayer(room, code) {
     return room.find(function(obj) {
         return obj.playerCode == code;
     });
+}
+// Funkcja zwracająca losową liczbę z przedziału od MIN do MAX włącznie
+function getRandom(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
