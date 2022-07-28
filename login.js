@@ -1,11 +1,13 @@
-var choosenSkin = 0;
+var choosenSkin = 0; // Aktualnie wybrany skin
 
-var button = document.getElementById("button");
-var textureDiv = document.getElementById("skin-div");
+var button = document.getElementById("button"); // Przycisk dołączający do gry
+var textureDiv = document.getElementById("skin-div"); // Div wyboru skina
 
+// Strzałki
 var arrow1 = document.getElementById("arrow1");
 var arrow2 = document.getElementById("arrow2");
 
+// Kod dziejący się po kliknięciu strzałek
 arrow1.onmousedown = function() {
     switchSkin(-1);
 }
@@ -27,12 +29,17 @@ button.onclick = function () {
     }
 }
 switchSkin(0);
-// button.click(); // DELETE
 
+// Funkcja przełączająca skina
 function switchSkin(direction) {
     choosenSkin += direction;
     if(choosenSkin >= _SKINS) choosenSkin = 0;
     if(choosenSkin < 0) choosenSkin = _SKINS - 1;
 
     textureDiv.innerHTML = `<img src='images/players/player${choosenSkin + 1}.png'>`;
+}
+
+// Funkcja zwracająca losową liczbę z przedziału od MIN do MAX włącznie
+function getRandom(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }

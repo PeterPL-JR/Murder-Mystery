@@ -1,0 +1,31 @@
+[
+    {"file": "grass.png","solid": false},
+    {"file": "floor.png","solid": false},
+    {"file": "wall.png","solid": true},
+    {"file": "stone_bricks.png","solid": true},
+
+    {"file": "water.png", "solid": true},
+    {"file": "sandstone_floor.png", "solid": false},
+    {"file": "sand.png", "solid": false},
+    {"file": "sandstone_bricks.png", "solid": true},
+
+    {"file": "flower1.png", "solid": false},
+    {"file": "flower2.png", "solid": false},
+    {"file": "cactus.png", "solid": false},
+    {"file": "stone.png", "solid": true},
+
+    {"file": "wood.png", "solid": true},
+    {"file": "bricks.png", "solid": true},
+    {"file": "lily1.png", "solid": false},
+    {"file": "lily2.png", "solid": false},
+
+    {"file": "mushroom1.png", "solid": false},
+    {"file": "mushroom2.png", "solid": false},
+    {"file": "rock.png", "solid": true},
+    {"file": "sandstone.png", "solid": true},
+
+    {"file": "stone_floor.png", "solid": false},
+    {"file": "gravel.png", "solid": false},
+    {"file": "hedge.png", "solid": true},
+    {"file": "barrel.png", "solid": true}
+]

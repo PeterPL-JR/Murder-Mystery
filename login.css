@@ -1,7 +1,9 @@
+/* Styl dla obiektu body (całej strony) */
 body {
     background-color: black;
 }
 
+/* Styl dla nagłówka z nazwą gry */
 h1 {
     background: linear-gradient(#626262, #434343);
     box-shadow: 10px 10px 1px #6b6a50;
@@ -11,6 +13,7 @@ h1 {
     width: 700px;
     margin-bottom: 0px;
 }
+/* Styl dla nagłówka z nazwą autora */
 h2 {
     font: bold 50px 'Arial';
     margin-bottom: 50px;
@@ -22,6 +25,7 @@ h2 span {
     color: #787a6d;
 }
 
+/* Główny <div> zawierający */
 #login-container {
     width: max-content;
     margin: auto;
@@ -29,19 +33,18 @@ h2 span {
     color: white;
 }
 
+/* <div> wyboru skina */
 #skin-div {
     width: 160px;
     height: 160px;
     overflow: hidden;
 }
-
 #skin-choose-div {
     height: 160px;
     width: max-content;
     margin: auto;
     margin-top: 30px;
 }
-
 #skin-choose-div *{
     float: left;
 }
@@ -49,6 +52,7 @@ h2 span {
     background-color: #0000;
 }
 
+/* <div> z polami tekstowymi */
 #inputs-div {
     background: linear-gradient(#737373, #55554e);
     box-shadow: 16px 16px 1px #303030;
@@ -58,6 +62,7 @@ h2 span {
     font: normal 30px 'Caladea';
 }
 
+/* Strzałki wyboru skina */
 #arrow1, #arrow2 {
     height: 160px;
     font: bold 45px 'Impact';
@@ -66,6 +71,7 @@ h2 span {
     color: #a7a7a7;
 }
 
+/* Styl przycisku */
 button {
     margin-top: 10px;
     background-color: #303030;
@@ -83,10 +89,12 @@ button {
     height: 42px;
     cursor: pointer;
 }
+/* Styl przycisku po najechaniu kursorem*/
 button:hover {
     box-shadow: 6px 6px 1px #c0c0c0;
 }
 
+/* Styl pola tekstowego */
 input {
     outline: none;
     border: none;
@@ -99,6 +107,7 @@ input {
     box-shadow: 7px 7px 1px #acac8a;
     margin-bottom: 20px;
 }
+/* Styl pola tekstowego w czasie edytowania */
 input:focus {
     box-shadow: 7px 7px 1px #989893;
 }

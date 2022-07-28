@@ -1,82 +1,34 @@
 var gameContainer = document.getElementById("game-container"); // Elementy strony z grą
 var loginContainer = document.getElementById("login-container"); // Interfejs dołączania do gry
 
-var skinsImages = [];
-const _SKINS = 13;
-const _TILES = 24;
-
-// Zmienne do komunikacji z serwerem
-var socket;
-var playerCode;
-
-// Zmienne obiektu <canvas>
+// Zmienne związane z elementem <canvas>
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 
-// Wielkość obiektu <canvas> (wyrażona w pikselach)
+var nick; // Nick gracza
+var playerCode; // Kod gracza
+
+var socket; // Gniazdo Socket.io
+var gameCode; // Kod gry
+
+// Wielkość obiektu <canvas>
 const WIDTH = canvas.width;
 const HEIGHT = canvas.height;
 
-// Wielkość pojedynczego kafelka (wyrażona w pikselach)
-const TILE_SIZE = 96;
-const PLAYER_SIZE = 160;
-const SPEED = 8;
-const TEX_SPEED = SPEED * 4;
-
-// Wielkość mapy (wyrażona w kafelkach)
-const MAP_SIZE = 40;
-
-// Offsety (renderowanie gracza na środku planszy)
-const X_OFFSET = WIDTH / 2 - PLAYER_SIZE / 2;
-const Y_OFFSET = HEIGHT / 2 - PLAYER_SIZE / 2;
+const TILE_SIZE = 96; // Wielkość pojedynczego kafelka
+const MAP_SIZE = 40; // Wielkość mapy
+const _TILES = 24; // Ilość rodzajów kafelków
 
 // Tablica [x][y] z kafelkami
 var tiles = [];
 
-// Tablica innych graczy
-var otherPlayers = [];
+var tilesObjs = []; // Obiekty kafelków
+var tilesSolid = []; // Wartości "solid"
 
-// Dane gracza
-var playerX = MAP_SIZE * TILE_SIZE / 2 - PLAYER_SIZE / 2;
-var playerY = MAP_SIZE * TILE_SIZE / 2 - PLAYER_SIZE / 2;
-var skinIndex = 0;
+const tilesImages = []; // Obrazki kafelków
+const keys = {}; // Klawisze (true/false)
 
-var nick;
-var gameCode;
-
-// Ruch gracza
-var direction = 0;
-var moving = false;
-var movingTime = 0;
-var movingIndex = -1;
-
-// Tablica z obrazkami kafelków
-const tilesImages = [];
-const keys = {};
-
-// Tablica kierunków
-const dirs = [
-    "right", "left", "down", "up"
-];
-
-// Klawisze
-const movingKeys = [
-    "D", "A", "S", "W"
-];
-
-// Klawisze i kierunki poruszania
-const allTheRightMoves = {
-    W: [0, -1],
-    S: [0, 1],
-    A: [-1, 0],
-    D: [1, 0]
-};
-
-// Tablice tekstur
-const textures = [];
-const movingTextures1 = [];
-const movingTextures2 = [];
-
+// Funkcja rozpoczynająca grę
 function joinGame(data) {
     socket = data.socket;
     nick = data.nick;
@@ -87,14 +39,15 @@ function joinGame(data) {
     socket.on("send-players", function (data) {
         otherPlayers = data;
     });
+    socket.on("send-tiles", function(data) {
+        tilesObjs = data;
+        socket.emit("send-map");
+    });
     socket.on("send-map", function (data) {
-        initTiles(data.data);
+        initTiles(data.data); // Przygotuj kafelki
 
-        // Przygotuj grę
-        loadImages();
-
-        // Rozpocznij grę!
-        draw();
+        loadImages(); // Przygotuj grę
+        draw(); // Rozpocznij grę!
     });
 
     gameContainer.style.display = "inline-block"; // Pokazanie obiektu <canvas>
@@ -120,10 +73,10 @@ function joinGame(data) {
 // Funkcja ładowania obrazków
 function loadImages() {
     // Ładowanie kafelków
-    for (var i = 0; i < _TILES; i++) {
-        tilesImages[i] = createImage("tiles/tile" + (i + 1) + ".png");
+    for(var obj of tilesObjs) {
+        tilesImages.push(createImage("tiles/" + obj.file));
+        tilesSolid.push(obj.solid);
     }
-
     // Ładowanie tektur gracza
     for(var i = 0; i < _SKINS; i++) {
         skinsImages[i] = createImage("players/player" + (i + 1) + ".png");
@@ -145,14 +98,6 @@ function initTiles(tilesData) {
     }
 }
 
-// Funkcja poruszania się
-function move(x, y) {
-    playerX += x * SPEED;
-    playerY += y * SPEED;
-    moving = true;
-    send();
-}
-
 // Funkcja renderująca
 function draw() {
     requestAnimationFrame(draw);
@@ -163,11 +108,9 @@ function draw() {
 
     renderTiles();
     renderPlayers();
-
-    ctx.font = "40px Verdana";
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.fillText(nick, WIDTH / 2, Y_OFFSET - 18);
+    
+    // Renderowanie Nicku
+    drawNick(nick, WIDTH / 2, Y_OFFSET - 18);
 
     // Renderowanie Gracza
     drawPlayer(X_OFFSET, Y_OFFSET, skinIndex, direction, movingIndex);
@@ -185,29 +128,9 @@ function draw() {
             move(moveX, moveY);
         }
     }
-
     if (moving) {
         movingTime++;
         movingIndex = (movingTime % TEX_SPEED < TEX_SPEED / 2) ? 0 : 1;
-    }
-}
-
-// Funkcja renderująca graczy
-function renderPlayers() {
-    for (var player of otherPlayers) {
-        if (player.playerCode == playerCode) continue;
-
-        var xPos = player.xPos - playerX + X_OFFSET;
-        var yPos = player.yPos - playerY + Y_OFFSET;
-        drawPlayer(xPos, yPos, player.skin, player.direction, player.movingIndex);
-        
-        ctx.font = "40px Verdana";
-        ctx.fillStyle = "white";
-        ctx.textAlign = "center";
-
-        var textX = xPos + PLAYER_SIZE / 2;
-        var textY = yPos - 18;
-        ctx.fillText(player.nick, textX, textY);
     }
 }
 
@@ -224,20 +147,9 @@ function renderTiles() {
     }
 }
 
-// Funkcja wysyłająca do serwera dane gracza
-function send() {
-    socket.emit("player-moved", {
-        xPos: playerX,
-        yPos: playerY,
-        playerCode, direction,
-        moving, movingIndex,
-        gameCode
-    });
-}
-
-function drawPlayer(x, y, textureIndex, direction, movingIndex) {
-    var texture = skinsImages[textureIndex];
-    var xOffset = direction;
-    var yOffset = movingIndex + 1;
-    ctx.drawImage(texture, xOffset * PLAYER_SIZE, yOffset * PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE, x, y, PLAYER_SIZE, PLAYER_SIZE);
+// Funkcja ładująca pojedynczy obrazek
+function createImage(path) {
+    var image = document.createElement("img");
+    image.src = "images/" + path;
+    return image;
 }
