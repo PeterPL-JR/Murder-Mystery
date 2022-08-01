@@ -11,13 +11,16 @@ var playerCode; // Kod gracza
 var socket; // Gniazdo Socket.io
 var gameCode; // Kod gry
 
-// Wielkość obiektu <canvas>
-const WIDTH = canvas.width;
-const HEIGHT = canvas.height;
-
 const TILE_SIZE = 96; // Wielkość pojedynczego kafelka
 const MAP_SIZE = 40; // Wielkość mapy
 const _TILES = 24; // Ilość rodzajów kafelków
+
+const SCREEN_MAP_WIDTH = 13;
+const SCREEN_MAP_HEIGHT = 7;
+
+// Wielkość obiektu <canvas>
+const WIDTH = SCREEN_MAP_WIDTH * TILE_SIZE;
+const HEIGHT = SCREEN_MAP_HEIGHT * TILE_SIZE;
 
 // Tablica [x][y] z kafelkami
 var tiles = [];
@@ -30,6 +33,10 @@ const keys = {}; // Klawisze (true/false)
 
 // Funkcja rozpoczynająca grę
 function joinGame(data) {
+
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+
     socket = data.socket;
     nick = data.nick;
     playerCode = data.playerCode;
@@ -68,6 +75,14 @@ function joinGame(data) {
             send();
         }
     }
+
+    canvas.onmousedown = function(event) {
+        if(event.button == 0) {
+            var mouseX = event.clientX - canvas.offsetLeft;
+            var mouseY = event.clientY - canvas.offsetTop;
+            shoot(mouseX, mouseY);
+        }
+    }
 }
 
 // Funkcja ładowania obrazków
@@ -104,8 +119,11 @@ function draw() {
     // Czyszczenie ekranu
     ctx.fillStyle = "#121212";
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
     renderTiles();
+
+    for(var shot of shots) {
+        shot.update();
+    }
     renderPlayers();
     
     // Renderowanie Nicku
@@ -151,6 +169,18 @@ function createImage(path) {
     var image = document.createElement("img");
     image.src = "images/" + path;
     return image;
+}
+
+function drawRotatedImage(image, x, y, width, height, angle) {
+    var translateX = x + width / 2;
+    var translateY = y + height / 2;
+
+    ctx.translate(translateX, translateY);
+    ctx.rotate(angle);
+    ctx.drawImage(image, -width / 2, -height / 2, width, height);
+
+    ctx.rotate(-angle);
+    ctx.translate(-translateX, -translateY);
 }
 
 function getTile(tileX, tileY) {

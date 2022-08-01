@@ -7,8 +7,8 @@ var playerX = MAP_SIZE * TILE_SIZE / 2 - PLAYER_SIZE / 2;
 var playerY = MAP_SIZE * TILE_SIZE / 2 - PLAYER_SIZE / 2;
 
 // Położenie x, y gracza na obiekcie <canvas>
-const X_OFFSET = WIDTH / 2 - PLAYER_SIZE / 2;
-const Y_OFFSET = HEIGHT / 2 - PLAYER_SIZE / 2;
+const X_OFFSET = WIDTH / 2 - PLAYER_SIZE / 2 - TILE_SIZE / 2;
+const Y_OFFSET = HEIGHT / 2 - PLAYER_SIZE / 2 + TILE_SIZE / 2;
 
 // Ruch gracza
 var direction = 0;
@@ -22,6 +22,7 @@ var skinIndex = 0; // Index skina gracza
 
 var skinsImages = []; // Obrazki postaci
 var otherPlayers = []; // Tablica innych graczy
+var shots = [];
 
 // Tablica kierunków
 const dirs = [
@@ -109,4 +110,19 @@ function isCollision(playerX, playerY, moveX, moveY, direction) {
 
     var tile = getTile(xPos, yPos);
     return tilesSolid[tile.type];
+}
+
+function shoot(mouseX, mouseY) {
+    var playerCenterX = playerX + PLAYER_SIZE / 2;
+    var playerCenterY = playerY + PLAYER_SIZE / 2;
+
+    var xPos = mouseX + playerX - X_OFFSET;
+    var yPos = mouseY + playerY - Y_OFFSET;
+
+    var xLength = xPos - playerCenterX;
+    var yLength = yPos - playerCenterY;
+
+    var angle = Math.atan2(yLength, xLength);
+    var shot = new ArrowShot(playerCenterX, playerCenterY, angle);
+    shots.push(shot);
 }
