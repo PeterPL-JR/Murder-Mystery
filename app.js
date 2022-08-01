@@ -86,14 +86,13 @@ function loadImages() {
 // Funkcja tworząca tablicę z kafelkami
 function initTiles(tilesData) {
     for (var y = 0; y < MAP_SIZE; y++) {
-        tiles[y] = [];
         for (var x = 0; x < MAP_SIZE; x++) {
             var tileType = tilesData[y][x];
-            tiles[y][x] = {
+            tiles.push({
                 xPos: x,
                 yPos: y,
                 type: tileType
-            };
+            });
         }
     }
 }
@@ -125,7 +124,11 @@ function draw() {
             var moveX = playerMove[0];
             var moveY = playerMove[1];
             direction = movingKeys.indexOf(keyOfObj);
-            move(moveX, moveY);
+
+            if(!isCollision(playerX, playerY, moveX, moveY, direction)) {
+                move(moveX, moveY);
+            }
+            send();
         }
     }
     if (moving) {
@@ -136,14 +139,10 @@ function draw() {
 
 // Funkcja renderująca kafelki
 function renderTiles() {
-    for (var x = 0; x < MAP_SIZE; x++) {
-        for (var y = 0; y < MAP_SIZE; y++) {
-            const tile = tiles[x][y];
-
-            var tileX = tile.xPos * TILE_SIZE - playerX + X_OFFSET;
-            var tileY = tile.yPos * TILE_SIZE - playerY + Y_OFFSET;
-            ctx.drawImage(tilesImages[tile.type], tileX, tileY);
-        }
+    for(var tile of tiles) {
+        var tileX = tile.xPos * TILE_SIZE - playerX + X_OFFSET;
+        var tileY = tile.yPos * TILE_SIZE - playerY + Y_OFFSET;
+        ctx.drawImage(tilesImages[tile.type], tileX, tileY);
     }
 }
 
@@ -152,4 +151,13 @@ function createImage(path) {
     var image = document.createElement("img");
     image.src = "images/" + path;
     return image;
+}
+
+function getTile(tileX, tileY) {
+    var tile = tiles.find(function(tile) {
+        var condX = tileX >= tile.xPos * TILE_SIZE && tileX < tile.xPos * TILE_SIZE + TILE_SIZE;
+        var condY = tileY >= tile.yPos * TILE_SIZE && tileY < tile.yPos * TILE_SIZE + TILE_SIZE;
+        return condX && condY;
+    });
+    return tile;
 }

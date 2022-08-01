@@ -93,5 +93,20 @@ function move(x, y) {
     playerX += x * SPEED;
     playerY += y * SPEED;
     moving = true;
-    send();
+}
+
+function isCollision(playerX, playerY, moveX, moveY, direction) {
+    var xPos = playerX + moveX;
+    var yPos = playerY + moveY;
+
+    if(direction == 0 || direction == 1) yPos += PLAYER_SIZE / 2;
+    if(direction == 2 || direction == 3) xPos += PLAYER_SIZE / 2;
+
+    if(direction == 0) xPos += 110;
+    if(direction == 1) xPos += 60;
+    if(direction == 2) yPos += 135;
+    if(direction == 3) yPos += 90;
+
+    var tile = getTile(xPos, yPos);
+    return tilesSolid[tile.type];
 }
