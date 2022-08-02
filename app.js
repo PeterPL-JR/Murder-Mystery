@@ -4,6 +4,7 @@ var loginContainer = document.getElementById("login-container"); // Interfejs do
 // Zmienne związane z elementem <canvas>
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
+var time = 0;
 
 var nick; // Nick gracza
 var playerCode; // Kod gracza
@@ -46,7 +47,7 @@ function joinGame(data) {
     socket.on("send-players", function (data) {
         otherPlayers = data;
     });
-    socket.on("send-tiles", function(data) {
+    socket.on("send-tiles", function (data) {
         tilesObjs = data;
         socket.emit("send-map");
     });
@@ -60,42 +61,28 @@ function joinGame(data) {
     gameContainer.style.display = "inline-block"; // Pokazanie obiektu <canvas>
     loginContainer.style.display = "none"; // Ukrycie interfejsu logowania
 
-    // Wykrywanie, kiedy klawisz został kliknięty
-    document.body.onkeydown = function (event) {
-        keys[event.key.toUpperCase()] = true;
-    }
-    // Wykrywanie, kiedy klawisz został puszczony
-    document.body.onkeyup = function (event) {
-        var key = event.key.toUpperCase();
-        keys[key] = false;
-        if(movingKeys.indexOf(key) != -1) {
-            moving = false;
-            movingTime = 0;
-            movingIndex = -1;
-            send();
-        }
-    }
-
-    canvas.onmousedown = function(event) {
-        if(event.button == 0) {
-            var mouseX = event.clientX - canvas.offsetLeft;
-            var mouseY = event.clientY - canvas.offsetTop;
-            shoot(mouseX, mouseY);
-        }
-    }
+    initKeyboard();
+    initMouse();
 }
 
 // Funkcja ładowania obrazków
 function loadImages() {
     // Ładowanie kafelków
-    for(var obj of tilesObjs) {
+    for (var obj of tilesObjs) {
         tilesImages.push(createImage("tiles/" + obj.file));
         tilesSolid.push(obj.solid);
     }
     // Ładowanie tektur gracza
-    for(var i = 0; i < _SKINS; i++) {
+    for (var i = 0; i < _SKINS; i++) {
         skinsImages[i] = createImage("players/player" + (i + 1) + ".png");
     }
+
+    shootingTextures1 = [
+        [1, 3], [0, 3]
+    ];
+    shootingTextures2 = [
+        [3, 3], [2, 3]
+    ];
 }
 
 // Funkcja tworząca tablicę z kafelkami
@@ -115,17 +102,25 @@ function initTiles(tilesData) {
 // Funkcja renderująca
 function draw() {
     requestAnimationFrame(draw);
+    charged = fireRateTime >= FIRE_RATE;
+
+    if (keys["F"]) shooting = keys["F"];
+    else shooting = false;
 
     // Czyszczenie ekranu
     ctx.fillStyle = "#121212";
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
     renderTiles();
 
-    for(var shot of shots) {
+    for (var s = 0; s < shots.length; s++) {
+        var shot = shots[s];
         shot.update();
+        if(shot.destroyed) {
+            shots.splice(s, 1);
+        }
     }
     renderPlayers();
-    
+
     // Renderowanie Nicku
     drawNick(nick, WIDTH / 2, Y_OFFSET - 18);
 
@@ -133,31 +128,20 @@ function draw() {
     drawPlayer(X_OFFSET, Y_OFFSET, skinIndex, direction, movingIndex);
 
     // Poruszanie się gracza
-    for (var keyOfObj in keys) {
-        var playerMove = allTheRightMoves[keyOfObj];
-
-        // Poruszaj, gry klawisz jest naciśnięty oraz jest to W,S,D lub D
-        if (keys[keyOfObj] && playerMove) {
-            // Poruszaj gracza
-            var moveX = playerMove[0];
-            var moveY = playerMove[1];
-            direction = movingKeys.indexOf(keyOfObj);
-
-            if(!isCollision(playerX, playerY, moveX, moveY, direction)) {
-                move(moveX, moveY);
-            }
-            send();
-        }
+    if (!shooting) {
+        playerMoving();
     }
-    if (moving) {
-        movingTime++;
-        movingIndex = (movingTime % TEX_SPEED < TEX_SPEED / 2) ? 0 : 1;
+    time++;
+
+    if(time % 5 == 0 && fireRateTime < FIRE_RATE) {
+        fireRateTime++;
     }
+    console.log(fireRateTime);
 }
 
 // Funkcja renderująca kafelki
 function renderTiles() {
-    for(var tile of tiles) {
+    for (var tile of tiles) {
         var tileX = tile.xPos * TILE_SIZE - playerX + X_OFFSET;
         var tileY = tile.yPos * TILE_SIZE - playerY + Y_OFFSET;
         ctx.drawImage(tilesImages[tile.type], tileX, tileY);
@@ -184,7 +168,7 @@ function drawRotatedImage(image, x, y, width, height, angle) {
 }
 
 function getTile(tileX, tileY) {
-    var tile = tiles.find(function(tile) {
+    var tile = tiles.find(function (tile) {
         var condX = tileX >= tile.xPos * TILE_SIZE && tileX < tile.xPos * TILE_SIZE + TILE_SIZE;
         var condY = tileY >= tile.yPos * TILE_SIZE && tileY < tile.yPos * TILE_SIZE + TILE_SIZE;
         return condX && condY;
