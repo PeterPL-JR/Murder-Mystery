@@ -5,6 +5,7 @@ var loginContainer = document.getElementById("login-container"); // Interfejs do
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 var time = 0;
+var anims = [];
 
 var nick; // Nick gracza
 var playerCode; // Kod gracza
@@ -32,9 +33,11 @@ var tilesNames = [];
 
 const tilesImages = []; // Obrazki kafelków
 const keys = {}; // Klawisze (true/false)
+var anim1;
 
 // Funkcja rozpoczynająca grę
 function joinGame(data) {
+    anim1 = new Anim("coin.png", 0, 0, 64, 64, 9);
 
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
@@ -109,6 +112,10 @@ function draw() {
     if (keys["F"]) shooting = keys["F"];
     else shooting = false;
 
+    for(var anim of anims) {
+        anim.update();
+    }
+
     // Czyszczenie ekranu
     ctx.fillStyle = "#121212";
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -116,6 +123,8 @@ function draw() {
 
     renderPlayers();
     renderShots();
+
+    anim1.render();
 
     // Renderowanie Nicku
     drawNick(nick, WIDTH / 2, Y_OFFSET - 18);
@@ -169,4 +178,37 @@ function getTile(tileX, tileY) {
         return condX && condY;
     });
     return tile;
+}
+class Anim {
+    constructor(path, x, y, width, height, frameTime) {
+        this.path = path;
+        
+        this.width = width;
+        this.height = height;
+        
+        this.xPos = x;
+        this.yPos = y;
+
+        this.frame = 0;
+        this.startTime = time;
+        this.frameTime = frameTime;
+        this.init();
+    }
+    
+    init() {
+        this.image = createImage(this.path);
+        this.maxFrames = this.image.width / this.width;
+        anims.push(this);
+    }
+    update() {
+        if((time - this.startTime) % this.frameTime == 0) {
+            this.frame++;
+            if(this.frame >= this.maxFrames) {
+                this.frame = 0;
+            }
+        }
+    }
+    render() {
+        ctx.drawImage(this.image, this.frame * this.width, 0, this.width, this.height, this.xPos, this.yPos, this.width, this.height);
+    }
 }
