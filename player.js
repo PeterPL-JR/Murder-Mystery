@@ -53,24 +53,34 @@ function renderPlayers() {
     for (var player of otherPlayers) {
         if (player.playerCode == playerCode) continue;
 
-        var xPos = player.xPos - playerX + X_OFFSET;
-        var yPos = player.yPos - playerY + Y_OFFSET;
-        drawPlayer(xPos, yPos, player.skin, player.direction, player.movingIndex);
+        var xOffset = -playerX + X_OFFSET;
+        var yOffset = -playerY + Y_OFFSET;
+
+        var xPos = player.xPos + xOffset;
+        var yPos = player.yPos + yOffset;
+        drawPlayer(xPos, yPos, player.skin, player.direction, player.movingIndex, player.shooting, player.shootingIndex, player.leftButton, player.charged);
         
         var textX = xPos + PLAYER_SIZE / 2;
         var textY = yPos - 18;
         drawNick(player.nick, textX, textY);
+
+        for(var shot of player.shots) {
+            drawShot(shot.xPos + xOffset, shot.yPos + yOffset , shot.angle);
+        }
     }
 }
 
 // Funkcja wysyłająca do serwera dane gracza
 function send() {
-    socket.emit("player-moved", {
+    socket.emit("update-player", {
         xPos: playerX,
         yPos: playerY,
         playerCode, direction,
         moving, movingIndex,
-        gameCode
+
+        shooting, shootingIndex,
+        leftButton, charged,
+        gameCode, shots
     });
 }
 
@@ -99,7 +109,7 @@ function playerMoving() {
 }
 
 // Funkcja renderująca dowolnego gracza na mapie
-function drawPlayer(x, y, textureIndex, direction, movingIndex) {
+function drawPlayer(x, y, textureIndex, direction, movingIndex, shooting, shootingIndex, leftButton, charged) {
     var texture = skinsImages[textureIndex];
     var xOffset = direction;
     var yOffset = movingIndex + 1;
@@ -159,4 +169,5 @@ function shoot(mouseX, mouseY) {
     var angle = Math.atan2(yLength, xLength);
     var shot = new ArrowShot(playerCenterX, playerCenterY, angle);
     shots.push(shot);
+    send();
 }

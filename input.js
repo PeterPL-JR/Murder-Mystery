@@ -3,6 +3,7 @@ function initKeyboard() {
     document.body.onkeydown = function (event) {
         var key = event.key.toUpperCase();
         keys[key] = true;
+        send();
     }
     // Wykrywanie, kiedy klawisz został puszczony
     document.body.onkeyup = function (event) {
@@ -17,6 +18,7 @@ function initKeyboard() {
         if (key == "F") {
             shooting = false;
             leftButton = false;
+            send();
         }
     }
 }
@@ -25,6 +27,7 @@ function initMouse() {
     canvas.onmousedown = function (event) {
         if (shooting && event.button == 0) {
             leftButton = true;
+            send();
         }
     }
     canvas.onmouseup = function (event) {
@@ -37,6 +40,7 @@ function initMouse() {
                 shoot(mouseX, mouseY);
                 fireRateTime = 0;
             }
+            send();
         }
     }
     canvas.onmousemove = function (event) {
@@ -46,6 +50,7 @@ function initMouse() {
         if(shooting) {
             direction = shootingIndex;
         }
+        send();
     }
 }
 

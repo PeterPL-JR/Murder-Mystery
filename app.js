@@ -28,6 +28,7 @@ var tiles = [];
 
 var tilesObjs = []; // Obiekty kafelków
 var tilesSolid = []; // Wartości "solid"
+var tilesNames = [];
 
 const tilesImages = []; // Obrazki kafelków
 const keys = {}; // Klawisze (true/false)
@@ -44,7 +45,7 @@ function joinGame(data) {
     skinIndex = data.choosenSkin;
     gameCode = data.code;
 
-    socket.on("send-players", function (data) {
+    socket.on("send-data", function (data) {
         otherPlayers = data;
     });
     socket.on("send-tiles", function (data) {
@@ -71,6 +72,7 @@ function loadImages() {
     for (var obj of tilesObjs) {
         tilesImages.push(createImage("tiles/" + obj.file));
         tilesSolid.push(obj.solid);
+        tilesNames.push(obj.file.substring(0, obj.file.length - 4));
     }
     // Ładowanie tektur gracza
     for (var i = 0; i < _SKINS; i++) {
@@ -112,20 +114,14 @@ function draw() {
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
     renderTiles();
 
-    for (var s = 0; s < shots.length; s++) {
-        var shot = shots[s];
-        shot.update();
-        if(shot.destroyed) {
-            shots.splice(s, 1);
-        }
-    }
     renderPlayers();
+    renderShots();
 
     // Renderowanie Nicku
     drawNick(nick, WIDTH / 2, Y_OFFSET - 18);
 
     // Renderowanie Gracza
-    drawPlayer(X_OFFSET, Y_OFFSET, skinIndex, direction, movingIndex);
+    drawPlayer(X_OFFSET, Y_OFFSET, skinIndex, direction, movingIndex, shooting, shootingIndex, leftButton, charged);
 
     // Poruszanie się gracza
     if (!shooting) {
@@ -136,7 +132,6 @@ function draw() {
     if(time % 5 == 0 && fireRateTime < FIRE_RATE) {
         fireRateTime++;
     }
-    console.log(fireRateTime);
 }
 
 // Funkcja renderująca kafelki

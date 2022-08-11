@@ -27,7 +27,7 @@ map.loadTiles();
 // Kod dziejący się po uruchomieniu strony
 io.on("connection", function(socket) {
 
-    // Dołączanie gracza do grt
+    // Dołączanie gracza do gry
     socket.on("join-game", function(data) {
         connectPlayer(socket, data);
     });
@@ -36,10 +36,10 @@ io.on("connection", function(socket) {
         disconnectPlayer(socket);
     });
     // Poruszanie gracza
-    socket.on("player-moved", function(data) {
-        movePlayer(data);
+    socket.on("update-player", function(data) {
+        updatePlayer(data);
     });
-    sendPlayers(socket);
+    sendData(socket);
 });
 
 // Uruchamianie programu na odpowiednim porcie
@@ -80,7 +80,8 @@ function connectPlayer(socket, data) {
         
         moving: false,
         movingIndex: -1,
-        skin: socket.skin
+        skin: socket.skin,
+        shots: []
     });
 }
 
@@ -99,25 +100,29 @@ function disconnectPlayer(socket) {
 }
 
 // Funkcja poruszająca gracza
-function movePlayer(data) {
-    var gameCode = data.gameCode;
-    var room = rooms[gameCode];
-    var index = functions.findPlayerIndex(room, data.playerCode);
+function updatePlayer(data) {
+    var player = findPlayerInRoom(data.gameCode, data.playerCode);
 
     // Zmiana danych gracza związanych z ruchem
-    room[index].xPos = data.xPos;
-    room[index].yPos = data.yPos;
-    room[index].direction = data.direction;
-    room[index].moving = data.moving;
-    room[index].movingIndex = data.movingIndex;
+    player.xPos = data.xPos;
+    player.yPos = data.yPos;
+    player.direction = data.direction;
+    player.moving = data.moving;
+    player.movingIndex = data.movingIndex;
+    player.shots = data.shots;
+
+    player.shooting = data.shooting;
+    player.shootingIndex = data.shootingIndex;
+    player.leftButton = data.leftButton;
+    player.charged = data.charged;
 }
 
 // Funkcja wysyłająca dane innych graczy
-function sendPlayers(socket) {
+function sendData(socket) {
     setInterval(function() {
         for(var name in rooms) {
             var room = rooms[name];
-            socket.to(name).emit("send-players", room);
+            socket.to(name).emit("send-data", room);
         }
     }, 15);
 }
@@ -127,4 +132,10 @@ function createRoom(gameCode) {
     var mapIndex = functions.getRandom(0, map.MAPS - 1);
     rooms[gameCode] = [];
     maps[gameCode] = mapIndex;
+}
+
+function findPlayerInRoom(gameCode, playerCode) {
+    var room = rooms[gameCode];
+    var index = functions.findPlayerIndex(room, playerCode);
+    return room[index];
 }
