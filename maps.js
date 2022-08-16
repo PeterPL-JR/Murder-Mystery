@@ -26,12 +26,16 @@ exports.initMaps = function() {
 function initMap(index) {
     var mapFileName = mapsFilesNames[index];
     var mapName = mapsNames[index];
-
+    
     files.readFile("maps/map_" + mapFileName + ".json", "utf-8", function(error, data) {
         var obj = JSON.parse(data);
+        var tiles = obj.tiles;
+        var spawn = obj.spawn;
+
         mapsObjs.push({
             name: mapName,
-            data: obj
+            data: tiles,
+            spawn: spawn
         });
     });
     exports.mapsObjs = mapsObjs;

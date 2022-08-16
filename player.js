@@ -53,11 +53,8 @@ function renderPlayers() {
     for (var player of otherPlayers) {
         if (player.playerCode == playerCode) continue;
 
-        var xOffset = -playerX + X_OFFSET;
-        var yOffset = -playerY + Y_OFFSET;
-
-        var xPos = player.xPos + xOffset;
-        var yPos = player.yPos + yOffset;
+        var xPos = getX(player.xPos);
+        var yPos = getY(player.yPos);
         drawPlayer(xPos, yPos, player.skin, player.direction, player.movingIndex, player.shooting, player.shootingIndex, player.leftButton, player.charged);
         
         var textX = xPos + PLAYER_SIZE / 2;
@@ -65,7 +62,7 @@ function renderPlayers() {
         drawNick(player.nick, textX, textY);
 
         for(var shot of player.shots) {
-            drawShot(shot.xPos + xOffset, shot.yPos + yOffset , shot.angle);
+            drawShot(getX(shot.xPos), getY(shot.yPos), shot.angle);
         }
     }
 }
@@ -170,4 +167,11 @@ function shoot(mouseX, mouseY) {
     var shot = new ArrowShot(playerCenterX, playerCenterY, angle);
     shots.push(shot);
     send();
+}
+
+function getX(mapX) {
+    return mapX - playerX + X_OFFSET;
+}
+function getY(mapY) {
+    return mapY - playerY + Y_OFFSET;
 }

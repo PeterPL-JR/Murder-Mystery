@@ -33,12 +33,9 @@ var tilesNames = [];
 
 const tilesImages = []; // Obrazki kafelków
 const keys = {}; // Klawisze (true/false)
-var anim1;
 
 // Funkcja rozpoczynająca grę
 function joinGame(data) {
-    anim1 = new Anim("coin.png", 0, 0, 64, 64, 9);
-
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
 
@@ -57,6 +54,8 @@ function joinGame(data) {
     });
     socket.on("send-map", function (data) {
         initTiles(data.data); // Przygotuj kafelki
+        spawnPositions = data.spawn;
+        initSpawn();
 
         loadImages(); // Przygotuj grę
         draw(); // Rozpocznij grę!
@@ -112,19 +111,18 @@ function draw() {
     if (keys["F"]) shooting = keys["F"];
     else shooting = false;
 
-    for(var anim of anims) {
-        anim.update();
-    }
-
     // Czyszczenie ekranu
     ctx.fillStyle = "#121212";
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
     renderTiles();
 
+    for(var anim of anims) {
+        anim.update();
+        anim.render();
+    }
+
     renderPlayers();
     renderShots();
-
-    anim1.render();
 
     // Renderowanie Nicku
     drawNick(nick, WIDTH / 2, Y_OFFSET - 18);
@@ -146,8 +144,8 @@ function draw() {
 // Funkcja renderująca kafelki
 function renderTiles() {
     for (var tile of tiles) {
-        var tileX = tile.xPos * TILE_SIZE - playerX + X_OFFSET;
-        var tileY = tile.yPos * TILE_SIZE - playerY + Y_OFFSET;
+        var tileX = getX(tile.xPos * TILE_SIZE);
+        var tileY = getY(tile.yPos * TILE_SIZE);
         ctx.drawImage(tilesImages[tile.type], tileX, tileY);
     }
 }
@@ -180,8 +178,8 @@ function getTile(tileX, tileY) {
     return tile;
 }
 class Anim {
-    constructor(path, x, y, width, height, frameTime) {
-        this.path = path;
+    constructor(image, x, y, width, height, frameTime) {
+        this.image = image;
         
         this.width = width;
         this.height = height;
@@ -196,7 +194,6 @@ class Anim {
     }
     
     init() {
-        this.image = createImage(this.path);
         this.maxFrames = this.image.width / this.width;
         anims.push(this);
     }
@@ -209,6 +206,8 @@ class Anim {
         }
     }
     render() {
-        ctx.drawImage(this.image, this.frame * this.width, 0, this.width, this.height, this.xPos, this.yPos, this.width, this.height);
+        var renderX = getX(this.xPos);
+        var renderY = getY(this.yPos);
+        ctx.drawImage(this.image, this.frame * this.width, 0, this.width, this.height, renderX, renderY, this.width, this.height);
     }
 }

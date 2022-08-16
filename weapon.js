@@ -42,8 +42,8 @@ class ArrowShot {
             }
         }
 
-        var renderX = this.xPos - playerX + X_OFFSET;
-        var renderY = this.yPos - playerY + Y_OFFSET;
+        var renderX = getX(this.xPos);
+        var renderY = getY(this.yPos);
 
         drawShot(renderX, renderY, this.angle);
         send();
