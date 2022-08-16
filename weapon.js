@@ -1,4 +1,5 @@
 const SHOT_SPEED = 35;
+const SHOT_DISTANCE = TILE_SIZE * 15;
 const arrowTex = createImage("arrow.png");
 
 const FIRE_RATE = 5;
@@ -6,7 +7,9 @@ var fireRateTime = FIRE_RATE;
 var charged = true;
 
 class ArrowShot {
-    constructor(startX, startY, angle) {        
+    constructor(startX, startY, angle) {
+        this.startX = startX;
+        this.startY = startY;
         this.angle = angle;
 
         this.xSpeed = Math.cos(angle) * SHOT_SPEED;
@@ -19,6 +22,11 @@ class ArrowShot {
     update() {
         this.xPos += this.xSpeed;
         this.yPos += this.ySpeed;
+
+        if(this.getDistance() >= SHOT_DISTANCE) {
+            this.destroy();
+        }
+
         ctx.fillStyle = "red";
 
         var tileX = this.xPos + TILE_SIZE / 2;
@@ -42,6 +50,12 @@ class ArrowShot {
     }
     destroy() {
         this.destroyed = true;
+    }
+
+    getDistance() {
+        var xPos = this.xPos - this.startX;
+        var yPos = this.yPos - this.startY;
+        return Math.sqrt(Math.pow(xPos, 2) + Math.pow(yPos, 2))
     }
 }
 
