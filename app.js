@@ -129,6 +129,7 @@ function draw() {
 
     // Renderowanie Gracza
     drawPlayer(X_OFFSET, Y_OFFSET, skinIndex, direction, movingIndex, shooting, shootingIndex, leftButton, charged);
+    checkCoinCollision(playerX, playerY);
 
     // Poruszanie się gracza
     if (!shooting) {
@@ -190,15 +191,21 @@ class Anim {
         this.frame = 0;
         this.startTime = time;
         this.frameTime = frameTime;
+        this.destroyed = false;
         this.init();
     }
     
     init() {
         this.maxFrames = this.image.width / this.width;
+        this.index = anims.length;
         anims.push(this);
     }
+    destroy() {
+        anims.splice(this.index, 1);
+        this.destroyed = true;
+    }
     update() {
-        if((time - this.startTime) % this.frameTime == 0) {
+        if((time - this.startTime) % this.frameTime == 0 && !this.destroyed) {
             this.frame++;
             if(this.frame >= this.maxFrames) {
                 this.frame = 0;
@@ -206,6 +213,8 @@ class Anim {
         }
     }
     render() {
+        if(this.destroyed) return;
+        
         var renderX = getX(this.xPos);
         var renderY = getY(this.yPos);
         ctx.drawImage(this.image, this.frame * this.width, 0, this.width, this.height, renderX, renderY, this.width, this.height);

@@ -9,6 +9,7 @@ var spawnPositions = [];
 function initSpawn() {
     for(var i = 0; i < _COINS; i++) {
         mapCoins[i] = null;
+        // spawnCoin(i);
     }
     setInterval(function() {
         var index = getRandom(0, _COINS - 1);
@@ -22,4 +23,9 @@ function spawnCoin(index) {
     var spawnX = spawnPositions[index][0] * TILE_SIZE;
     var spawnY = spawnPositions[index][1] * TILE_SIZE;
     mapCoins[index] = new Anim(coinTex, spawnX, spawnY, COIN_SIZE, COIN_SIZE, FRAME_TIME);
+}
+
+function destroyCoin(index) {
+    mapCoins[index].destroy();
+    mapCoins[index] = null;
 }
