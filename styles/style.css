@@ -23,6 +23,9 @@ canvas {
     position: absolute;
     z-index: 3;
 }
+#overlay-div *::selection{
+    background-color: #0000;
+}
 
 #board {
     width: 270px;
@@ -52,6 +55,7 @@ canvas {
 }
 #board > div > span {
     color: #65ff65;
+    font-weight: bold;
 }
 hr {
     opacity: 0.6;

@@ -25,21 +25,20 @@ function initKeyboard() {
 
 function initMouse() {
     document.body.onmousedown = function (event) {
-        if (shooting && event.button == 0) {
+        if (shooting && isPlayerReady() && event.button == 0) {
             leftButton = true;
             send();
         }
     }
     document.body.onmouseup = function (event) {
         if (shooting && event.button == 0) {
-            leftButton = false;
-
             var mouseX = getMouseX(event);
             var mouseY = getMouseY(event);
-            if(charged) {
+            if(charged && leftButton) {
                 shoot(mouseX, mouseY);
                 fireRateTime = 0;
             }
+            leftButton = false;
             send();
         }
     }

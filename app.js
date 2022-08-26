@@ -38,6 +38,7 @@ const keys = {}; // Klawisze (true/false)
 function joinGame(data) {
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
+    initBoard();
 
     socket = data.socket;
     nick = data.nick;
@@ -56,6 +57,7 @@ function joinGame(data) {
         initTiles(data.map.data); // Przygotuj kafelki
         createMapCoins(data.coins);
         spawnPositions = data.spawn;
+        setBoardString("map-name", data.map.name);
 
         loadImages(); // Przygotuj grę
         draw(); // Rozpocznij grę!
@@ -69,7 +71,6 @@ function joinGame(data) {
 
     initKeyboard();
     initMouse();
-    initBoard();
 }
 
 // Funkcja ładowania obrazków
@@ -114,6 +115,10 @@ function draw() {
 
     if (keys["F"]) shooting = keys["F"];
     else shooting = false;
+
+    if(!isPlayerReady()) {
+        shooting = false;
+    }
 
     // Czyszczenie ekranu
     ctx.fillStyle = "#121212";

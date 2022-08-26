@@ -6,6 +6,9 @@ const FIRE_RATE = 5;
 var fireRateTime = FIRE_RATE;
 var charged = true;
 
+var bow = false;
+var arrows = 0;
+
 class ArrowShot {
     constructor(startX, startY, angle) {
         this.startX = startX;
@@ -72,4 +75,8 @@ function renderShots() {
             send();
         }
     }
+}
+
+function isPlayerReady() {
+    return bow && arrows > 0;
 }

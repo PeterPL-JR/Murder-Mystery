@@ -167,6 +167,9 @@ function shoot(mouseX, mouseY) {
     var shot = new ArrowShot(playerCenterX, playerCenterY, angle);
     shots.push(shot);
     send();
+    
+    arrows--;
+    setBoardString("arrows", arrows);
 }
 
 function getX(mapX) {

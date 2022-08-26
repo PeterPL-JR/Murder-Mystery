@@ -5,6 +5,9 @@ const coinTex = createImage("coin.png");
 var coins = 0;
 var mapCoins = [];
 
+var BOW_PRICE = 10;
+var ARROWS_PRICE = 10;
+
 function addCoin(coinsArray, index) {
     var animX = coinsArray[index].xPos * TILE_SIZE;
     var animY = coinsArray[index].yPos * TILE_SIZE;
@@ -31,9 +34,20 @@ function createMapCoins(array) {
 function pickCoin(index) {
     coins++;
     socket.emit("update-coins", {gameCode, coinIndex: index});
-
     deleteCoin(index);
-    console.log("Coins:", coins);
+    
+    if(!bow && coins >= BOW_PRICE) {
+        bow = true;
+        arrows++;
+        coins = 0;
+    }
+    if(bow && coins >= ARROWS_PRICE) {
+        arrows++;
+        coins = 0;
+    }
+
+    setBoardString("coins", coins);
+    setBoardString("arrows", arrows);
 }
 
 function checkCoinCollision(playerX, playerY) {
