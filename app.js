@@ -69,6 +69,7 @@ function joinGame(data) {
 
     initKeyboard();
     initMouse();
+    initBoard();
 }
 
 // Funkcja ładowania obrazków

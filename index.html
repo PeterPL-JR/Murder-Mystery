@@ -3,13 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Murder Mystery</title>
-    <link rel="stylesheet" href="/style.css" type="text/css">
-    <link rel="stylesheet" href="/login.css" type="text/css">
+    <link rel="stylesheet" href="/styles/style.css" type="text/css">
+    <link rel="stylesheet" href="/styles/login.css" type="text/css">
 </head>
 <body>
 <!-- Elementy strony z grą -->
 <div id="game-container">
     <canvas id="canvas"></canvas>
+    <div id="overlay-div">
+        <div id="board">
+            <div id="logo">Murder Mystery</div>
+            <div id="role">Rola: <span>Niewinny</span></div><hr>
+            <div id="innocents">Niewinni: <span>12</span></div>
+            <div id="time-left">Czas: <span>5:00</span></div><hr>
+
+            <div id="detective">Detektyw: <span>Żywy</span></div><hr>
+            <div id="map-name">Mapa: <span>Zamek</span></div><hr>
+
+            <div id="arrows">Strzały: <span>0</span></div>
+            <div id="coins">Monety: <span>0</span></div>
+        </div>
+    </div>
 </div>
 <!-- Interfejs dołączania do gry -->
 <div id="login-container">
@@ -34,6 +48,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="/app.js"></script>
     <script src="/input.js"></script>
+    <script src="/game-board.js"></script>
 
     <script src="/player.js"></script>
     <script src="/weapon.js"></script>

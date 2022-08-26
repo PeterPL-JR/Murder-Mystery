@@ -1,0 +1,58 @@
+/* Styl diva z zawierającego <canvas> */
+#game-container {
+    width: 100%;
+
+    margin-top: 40px;
+    display: none;
+    cursor: crosshair;
+}
+
+canvas, #overlay-div {
+    left: 0px;
+    right: 0px;
+    margin: auto;
+}
+
+canvas {
+    position: absolute;
+    z-index: 0;
+}
+
+#overlay-div {
+    color: white;
+    position: absolute;
+    z-index: 3;
+}
+
+#board {
+    width: 270px;
+    height: 370px;
+
+    background-color: #0008;
+    margin-left: auto;
+    margin-top: 55px;
+
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 20px;
+}
+#board > div:not([id="logo"]) {
+    font: normal 25px 'Verdana';
+}
+#board #logo {
+    text-align: center;
+    font: bold 35px 'Caladea';
+    margin-bottom: 25px;
+
+    background: linear-gradient(#787878, #535353);
+    box-shadow: 5px 5px 1px #c1c09d;
+
+    margin-left: -10px;
+    margin-right: -10px;
+}
+#board > div > span {
+    color: #65ff65;
+}
+hr {
+    opacity: 0.6;
+}

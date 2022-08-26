@@ -24,13 +24,13 @@ function initKeyboard() {
 }
 
 function initMouse() {
-    canvas.onmousedown = function (event) {
+    document.body.onmousedown = function (event) {
         if (shooting && event.button == 0) {
             leftButton = true;
             send();
         }
     }
-    canvas.onmouseup = function (event) {
+    document.body.onmouseup = function (event) {
         if (shooting && event.button == 0) {
             leftButton = false;
 
@@ -43,7 +43,7 @@ function initMouse() {
             send();
         }
     }
-    canvas.onmousemove = function (event) {
+    document.body.onmousemove = function (event) {
         var mouseX = getMouseX(event);
         shootingIndex = (mouseX < WIDTH / 2) ? 1 : 0;
         
