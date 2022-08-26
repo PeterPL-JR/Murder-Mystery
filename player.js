@@ -20,8 +20,6 @@ var shootingIndex = -1;
 var movingTime = 0;
 var movingIndex = -1;
 
-var coins = 0;
-
 const _SKINS = 13; // Ilość postaci
 var skinIndex = 0; // Index skina gracza
 
@@ -169,23 +167,6 @@ function shoot(mouseX, mouseY) {
     var shot = new ArrowShot(playerCenterX, playerCenterY, angle);
     shots.push(shot);
     send();
-}
-
-function pickCoin(index) {
-    coins++;
-    destroyCoin(index);
-}
-
-function checkCoinCollision(playerX, playerY) {
-    var index = mapCoins.findIndex(function(coin) {
-        if(coin == null) return false;
-        var condX = playerX > coin.xPos + COIN_SIZE || playerX + PLAYER_SIZE < coin.xPos;
-        var condY = playerY > coin.yPos + COIN_SIZE || playerY + PLAYER_SIZE < coin.yPos;
-        return !(condX || condY);
-    });
-    if(index != -1) {
-        pickCoin(index);
-    }
 }
 
 function getX(mapX) {

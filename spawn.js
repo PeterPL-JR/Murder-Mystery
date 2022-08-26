@@ -1,31 +1,47 @@
-const coinTex = createImage("coin.png");
 const _COINS = 12;
-const COIN_SIZE = 64;
-const FRAME_TIME = 9;
+const {getRandom} = require("./functions");
 
-const mapCoins = [];
-var spawnPositions = [];
+class CoinsGenerator {
+    constructor(spawnPositions, gameCode, sendCoins) {
+        this.mapCoins = [];
 
-function initSpawn() {
-    for(var i = 0; i < _COINS; i++) {
-        mapCoins[i] = null;
-        // spawnCoin(i);
+        this.sendCoins = sendCoins;
+        this.spawnPositions = spawnPositions;
+        this.gameCode = gameCode;
+        this.initSpawn();
     }
-    setInterval(function() {
-        var index = getRandom(0, _COINS - 1);
-        if(mapCoins[index] == null) {
-            spawnCoin(index);
+
+    initSpawn() {
+        for(var i = 0; i < _COINS; i++) {
+            this.mapCoins[i] = null;
         }
-    }, 1000);
-}
+        
+        var trySpawn = this.trySpawn.bind(this);
+        this.interval = setInterval(function() {
+            trySpawn();
+        }, 1000);
+    }
+    destroy() {
+        clearInterval(this.interval);
+    }
 
-function spawnCoin(index) {
-    var spawnX = spawnPositions[index][0] * TILE_SIZE;
-    var spawnY = spawnPositions[index][1] * TILE_SIZE;
-    mapCoins[index] = new Anim(coinTex, spawnX, spawnY, COIN_SIZE, COIN_SIZE, FRAME_TIME);
+    spawnCoin(index) {
+        var spawnX = this.spawnPositions[index][0];
+        var spawnY = this.spawnPositions[index][1];
+        this.mapCoins[index] = {
+            xPos: spawnX,
+            yPos: spawnY
+        };
+        this.sendCoins(this.mapCoins, this.gameCode);
+    }
+    destroyCoin(index) {
+        this.mapCoins[index] = null;
+    }
+    trySpawn() {
+        var index = getRandom(0, _COINS - 1);
+        if(this.mapCoins[index] == null) {
+            this.spawnCoin(index);
+        }
+    }
 }
-
-function destroyCoin(index) {
-    mapCoins[index].destroy();
-    mapCoins[index] = null;
-}
+exports.CoinsGenerator = CoinsGenerator;

@@ -53,12 +53,15 @@ function joinGame(data) {
         socket.emit("send-map");
     });
     socket.on("send-map", function (data) {
-        initTiles(data.data); // Przygotuj kafelki
+        initTiles(data.map.data); // Przygotuj kafelki
+        createMapCoins(data.coins);
         spawnPositions = data.spawn;
-        initSpawn();
 
         loadImages(); // Przygotuj grę
         draw(); // Rozpocznij grę!
+    });
+    socket.on("update-coins", function (data) {
+        createMapCoins(data.mapCoins);
     });
 
     gameContainer.style.display = "inline-block"; // Pokazanie obiektu <canvas>
