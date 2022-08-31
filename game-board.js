@@ -24,7 +24,7 @@ function setBoardColor(id, color) {
 }
 
 function setBoardDivString(id, string) {
-    boardDivs[id] = string;
+    boardDivs[id].innerHTML = string;
 }
 function setBoardString(id, string) {
     boardDataDivs[id].innerHTML = string;

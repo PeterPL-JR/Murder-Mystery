@@ -11,10 +11,20 @@ var ARROWS_PRICE = 10;
 function addCoin(coinsArray, index) {
     var animX = coinsArray[index].xPos * TILE_SIZE;
     var animY = coinsArray[index].yPos * TILE_SIZE;
-    mapCoins[index] = new Anim(coinTex, animX, animY, COIN_SIZE, COIN_SIZE, COIN_FRAME_TIME);
+    mapCoins[index] = {
+        xPos: animX,
+        yPos: animY,
+
+        anim: new Anim(coinTex, animX, animY, COIN_SIZE, COIN_SIZE, COIN_FRAME_TIME),
+        hitbox: new Hitbox({
+            rectangle: null,
+            width: COIN_SIZE,
+            height: COIN_SIZE
+        })
+    };
 }
 function deleteCoin(index) {
-    mapCoins[index].destroy();
+    mapCoins[index].anim.destroy();
     mapCoins[index] = null;
 }
 
@@ -51,11 +61,16 @@ function pickCoin(index) {
 }
 
 function checkCoinCollision(playerX, playerY) {
+
     var index = mapCoins.findIndex(function(coin) {
         if(coin == null) return false;
-        var condX = playerX > coin.xPos + COIN_SIZE || playerX + PLAYER_SIZE < coin.xPos;
-        var condY = playerY > coin.yPos + COIN_SIZE || playerY + PLAYER_SIZE < coin.yPos;
-        return !(condX || condY);
+        return Hitbox.isCollision(
+            coinsHitbox,
+            coin.hitbox,
+
+            [playerX, playerY],
+            [coin.xPos, coin.yPos]
+        );
     });
     if(index != -1) {
         pickCoin(index);

@@ -38,6 +38,8 @@ const keys = {}; // Klawisze (true/false)
 function joinGame(data) {
     canvas.width = WIDTH;
     canvas.height = HEIGHT;
+
+    initHitboxes();
     initBoard();
 
     socket = data.socket;

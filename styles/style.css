@@ -23,6 +23,9 @@ canvas {
     position: absolute;
     z-index: 3;
 }
+#overlay-div *{
+    user-select: none;
+}
 #overlay-div *::selection{
     background-color: #0000;
 }

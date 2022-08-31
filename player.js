@@ -103,6 +103,7 @@ function playerMoving() {
         movingTime++;
         movingIndex = (movingTime % TEX_SPEED < TEX_SPEED / 2) ? 0 : 1;
     }
+    hitbox.render(X_OFFSET, Y_OFFSET, "red");
 }
 
 // Funkcja renderująca dowolnego gracza na mapie
@@ -141,13 +142,13 @@ function isCollision(playerX, playerY, moveX, moveY, direction) {
     var xPos = playerX + moveX;
     var yPos = playerY + moveY;
 
-    if(direction == 0 || direction == 1) yPos += PLAYER_SIZE / 2;
-    if(direction == 2 || direction == 3) xPos += PLAYER_SIZE / 2;
+    if(direction == RIGHT || direction == LEFT) yPos += hitbox.top + hitbox.height / 2;
+    if(direction == DOWN || direction == UP) xPos += hitbox.left + hitbox.width / 2;
 
-    if(direction == 0) xPos += 110;
-    if(direction == 1) xPos += 60;
-    if(direction == 2) yPos += 135;
-    if(direction == 3) yPos += 90;
+    if(direction == RIGHT) xPos += hitbox.right;
+    if(direction == LEFT) xPos += hitbox.left;
+    if(direction == DOWN) yPos += hitbox.bottom;
+    if(direction == UP) yPos += hitbox.top;
 
     var tile = getTile(xPos, yPos);
     return tilesSolid[tile.type];
