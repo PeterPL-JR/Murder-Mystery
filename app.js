@@ -88,12 +88,10 @@ function loadImages() {
         skinsImages[i] = createImage("players/player" + (i + 1) + ".png");
     }
 
-    shootingTextures1 = [
-        [1, 3], [0, 3]
-    ];
-    shootingTextures2 = [
-        [3, 3], [2, 3]
-    ];
+    weaponTextures = {
+        left: [1, 0],
+        right: [3, 2]
+    };
 }
 
 // Funkcja tworząca tablicę z kafelkami
@@ -139,11 +137,11 @@ function draw() {
     drawNick(nick, WIDTH / 2, Y_OFFSET - 18);
 
     // Renderowanie Gracza
-    drawPlayer(X_OFFSET, Y_OFFSET, skinIndex, direction, movingIndex, shooting, shootingIndex, leftButton, charged);
+    drawPlayer(X_OFFSET, Y_OFFSET, skinIndex, direction, movingIndex, shooting, shootingDirIndex, leftButton, charged, swordAttack, swordDirIndex, swordAttackStage);
     checkCoinCollision(playerX, playerY);
 
     // Poruszanie się gracza
-    if (!shooting) {
+    if (!shooting && !swordAttack) {
         playerMoving();
     }
     time++;

@@ -25,6 +25,9 @@ function initKeyboard() {
 
 function initMouse() {
     document.body.onmousedown = function (event) {
+        if(!shooting) {
+            attack();
+        }
         if (shooting && isPlayerReady() && event.button == 0) {
             leftButton = true;
             send();
@@ -44,10 +47,10 @@ function initMouse() {
     }
     document.body.onmousemove = function (event) {
         var mouseX = getMouseX(event);
-        shootingIndex = (mouseX < WIDTH / 2) ? 1 : 0;
+        shootingDirIndex = (mouseX < WIDTH / 2) ? 1 : 0;
         
         if(shooting) {
-            direction = shootingIndex;
+            direction = shootingDirIndex;
         }
         send();
     }

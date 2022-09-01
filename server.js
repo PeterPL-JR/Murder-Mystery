@@ -123,9 +123,13 @@ function updatePlayer(data) {
     player.shots = data.shots;
 
     player.shooting = data.shooting;
-    player.shootingIndex = data.shootingIndex;
+    player.shootingDirIndex = data.shootingDirIndex;
     player.leftButton = data.leftButton;
     player.charged = data.charged;
+
+    player.swordAttack = data.swordAttack;
+    player.swordAttackStage = data.swordAttackStage;
+    player.swordDirIndex = data.swordDirIndex;
 }
 
 // Funkcja wysyłająca dane innych graczy

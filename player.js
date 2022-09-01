@@ -13,9 +13,6 @@ const Y_OFFSET = HEIGHT / 2 - PLAYER_SIZE / 2;
 // Ruch gracza
 var direction = 0;
 var moving = false;
-var shooting = false;
-var leftButton = false;
-var shootingIndex = -1;
 
 var movingTime = 0;
 var movingIndex = -1;
@@ -45,9 +42,6 @@ const allTheRightMoves = {
     D: [1, 0]
 };
 
-var shootingTextures1 = [];
-var shootingTextures2 = [];
-
 // Funkcja renderująca graczy
 function renderPlayers() {
     for (var player of otherPlayers) {
@@ -55,7 +49,7 @@ function renderPlayers() {
 
         var xPos = getX(player.xPos);
         var yPos = getY(player.yPos);
-        drawPlayer(xPos, yPos, player.skin, player.direction, player.movingIndex, player.shooting, player.shootingIndex, player.leftButton, player.charged);
+        drawPlayer(xPos, yPos, player.skin, player.direction, player.movingIndex, player.shooting, player.shootingDirIndex, player.leftButton, player.charged, player.swordAttack, player.swordDirIndex, player.swordAttackStage);
         
         var textX = xPos + PLAYER_SIZE / 2;
         var textY = yPos - 18;
@@ -75,9 +69,12 @@ function send() {
         playerCode, direction,
         moving, movingIndex,
 
-        shooting, shootingIndex,
+        shooting, shootingDirIndex,
         leftButton, charged,
-        gameCode, shots
+        gameCode, shots,
+        
+        swordAttack, swordAttackStage,
+        swordDirIndex
     });
 }
 
@@ -103,22 +100,32 @@ function playerMoving() {
         movingTime++;
         movingIndex = (movingTime % TEX_SPEED < TEX_SPEED / 2) ? 0 : 1;
     }
-    hitbox.render(X_OFFSET, Y_OFFSET, "red");
 }
 
 // Funkcja renderująca dowolnego gracza na mapie
-function drawPlayer(x, y, textureIndex, direction, movingIndex, shooting, shootingIndex, leftButton, charged) {
+function drawPlayer(x, y, textureIndex, direction, movingIndex, shooting, shootingIndex, leftButton, charged, swordAttack, swordDirIndex, swordAttackStage) {
     var texture = skinsImages[textureIndex];
     var xOffset = direction;
     var yOffset = movingIndex + 1;
 
-    if(shooting) {
-        var shootingTextures = shootingIndex == 1 ? shootingTextures1 : shootingTextures2;
-        var index = leftButton ? 0 : 1;
-        if(!charged) index = 1;
+    const BOW_TEX = 3;
+    const SWORD_TEX = 4;
 
-        xOffset = shootingTextures[index][0];
-        yOffset = shootingTextures[index][1];
+    if(shooting) {
+        var shootingTextures = weaponTextures[shootingIndex == LEFT ? "left" : "right"];
+        var index = leftButton ? WEAPON_ACTIVE : WEAPON_DEFAULT;
+        if(!charged) index = WEAPON_DEFAULT;
+
+        xOffset = shootingTextures[index];
+        yOffset = BOW_TEX;
+    }
+    if(swordAttack) {
+        var attackTextures = weaponTextures[swordDirIndex == LEFT ? "left" : "right"];
+        var index = swordAttackStage ? WEAPON_DEFAULT : WEAPON_ACTIVE;
+        attackTextures = weaponTextures["left"];
+
+        xOffset = attackTextures[index];
+        yOffset = SWORD_TEX;
     }
     ctx.drawImage(texture, xOffset * PLAYER_SIZE, yOffset * PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE, x, y, PLAYER_SIZE, PLAYER_SIZE);
 }
@@ -152,25 +159,6 @@ function isCollision(playerX, playerY, moveX, moveY, direction) {
 
     var tile = getTile(xPos, yPos);
     return tilesSolid[tile.type];
-}
-
-function shoot(mouseX, mouseY) {
-    var playerCenterX = playerX + PLAYER_SIZE / 2;
-    var playerCenterY = playerY + PLAYER_SIZE / 2;
-
-    var xPos = mouseX + playerX - X_OFFSET;
-    var yPos = mouseY + playerY - Y_OFFSET;
-
-    var xLength = xPos - playerCenterX;
-    var yLength = yPos - playerCenterY;
-
-    var angle = Math.atan2(yLength, xLength);
-    var shot = new ArrowShot(playerCenterX, playerCenterY, angle);
-    shots.push(shot);
-    send();
-    
-    arrows--;
-    setBoardString("arrows", arrows);
 }
 
 function getX(mapX) {
