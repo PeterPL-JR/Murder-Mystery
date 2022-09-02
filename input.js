@@ -25,7 +25,7 @@ function initKeyboard() {
 
 function initMouse() {
     document.body.onmousedown = function (event) {
-        if(!shooting) {
+        if(!shooting && !dead && event.button == 0) {
             attack();
         }
         if (shooting && isPlayerReady() && event.button == 0) {
@@ -34,7 +34,7 @@ function initMouse() {
         }
     }
     document.body.onmouseup = function (event) {
-        if (shooting && event.button == 0) {
+        if (shooting && !dead && event.button == 0) {
             var mouseX = getMouseX(event);
             var mouseY = getMouseY(event);
             if(charged && leftButton) {

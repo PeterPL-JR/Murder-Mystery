@@ -13,6 +13,7 @@ const Y_OFFSET = HEIGHT / 2 - PLAYER_SIZE / 2;
 // Ruch gracza
 var direction = 0;
 var moving = false;
+var dead = false;
 
 var movingTime = 0;
 var movingIndex = -1;
@@ -47,6 +48,18 @@ function renderPlayers() {
     for (var player of otherPlayers) {
         if (player.playerCode == playerCode) continue;
 
+        if(player.dead) {
+            const DIE_TEX_X = 3 * PLAYER_SIZE;
+            const DIE_TEX_Y = 0 * PLAYER_SIZE;
+            
+            const DIE_OFFSET = 30;
+            var renderX = getX(player.dieX);
+            var renderY = getY(player.dieY) + DIE_OFFSET;
+
+            drawRotatedSubImage(skinsImages[player.skin], DIE_TEX_X, DIE_TEX_Y, PLAYER_SIZE, PLAYER_SIZE, renderX, renderY, PLAYER_SIZE, PLAYER_SIZE, getRadians(-90));
+            continue;
+        }
+
         var xPos = getX(player.xPos);
         var yPos = getY(player.yPos);
         drawPlayer(xPos, yPos, player.skin, player.direction, player.movingIndex, player.shooting, player.shootingDirIndex, player.leftButton, player.charged, player.swordAttack, player.swordDirIndex, player.swordAttackStage);
@@ -58,7 +71,6 @@ function renderPlayers() {
         for(var shot of player.shots) {
             drawShot(getX(shot.xPos), getY(shot.yPos), shot.angle);
         }
-        healthHitbox.render(xPos, yPos, "yellow");
     }
 }
 
@@ -91,7 +103,7 @@ function playerMoving() {
             var moveY = playerMove[1];
             direction = movingKeys.indexOf(keyOfObj);
 
-            if(!isCollision(playerX, playerY, moveX, moveY, direction)) {
+            if(!isCollision(playerX, playerY, moveX, moveY, direction) || dead) {
                 move(moveX, moveY);
             }
             send();
@@ -123,7 +135,6 @@ function drawPlayer(x, y, textureIndex, direction, movingIndex, shooting, shooti
     if(swordAttack) {
         var attackTextures = weaponTextures[swordDirIndex == LEFT ? "left" : "right"];
         var index = swordAttackStage ? WEAPON_DEFAULT : WEAPON_ACTIVE;
-        // attackTextures = weaponTextures["left"];
 
         xOffset = attackTextures[index];
         yOffset = SWORD_TEX;

@@ -82,7 +82,7 @@ function attack() {
         var player = otherPlayers[i];
         const playerPos = [player.xPos, player.yPos];
 
-        if(player.playerCode == playerCode) continue;
+        if(player.playerCode == playerCode || player.dead) continue;
         if(!Hitbox.isCollision(healthHitbox, healthHitbox, pos, playerPos)) continue;
 
         var sides = Hitbox.getSide(healthHitbox, healthHitbox, pos, playerPos);
@@ -116,6 +116,9 @@ function attack() {
     var player = otherPlayers[playerIndex];
     swordDirIndex = Hitbox.getSide(healthHitbox, healthHitbox, [player.xPos, player.yPos], pos).horizontal;
     direction = swordDirIndex;
+
+    var playerId = player.playerCode;
+    socket.emit("defeat-player", {playerId, gameCode});
     renderAttack();
 }
 

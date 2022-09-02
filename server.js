@@ -46,6 +46,9 @@ io.on("connection", function(socket) {
     socket.on("update-coins", function(data) {
         deleteCoin(data);
     });
+    socket.on("defeat-player", function(data) {
+        defeatPlayer(data);
+    });
     sendData(socket);
 });
 
@@ -153,6 +156,22 @@ function deleteCoin(data) {
 
     gen.destroyCoin(data.coinIndex);
     sendCoins(gen.mapCoins, gameCode);
+}
+
+function defeatPlayer(data) {
+    var playerCode = data.playerId;
+    var gameCode = data.gameCode;
+    var room = rooms[gameCode];
+
+    var playerIndex = functions.findPlayerIndex(room, playerCode);
+    var defeatedPlayer = room[playerIndex];
+    defeatedPlayer.dead = true;
+    
+    defeatedPlayer.dieX = defeatedPlayer.xPos;
+    defeatedPlayer.dieY = defeatedPlayer.yPos;
+
+    var socket = sockets[gameCode][playerIndex];
+    socket.emit("defeat-player");
 }
 
 // Funkcja tworząca nowy pokój

@@ -67,6 +67,9 @@ function joinGame(data) {
     socket.on("update-coins", function (data) {
         createMapCoins(data.mapCoins);
     });
+    socket.on("defeat-player", function() {
+        dead = true;
+    });
 
     gameContainer.style.display = "inline-block"; // Pokazanie obiektu <canvas>
     loginContainer.style.display = "none"; // Ukrycie interfejsu logowania
@@ -138,7 +141,10 @@ function draw() {
 
     // Renderowanie Gracza
     drawPlayer(X_OFFSET, Y_OFFSET, skinIndex, direction, movingIndex, shooting, shootingDirIndex, leftButton, charged, swordAttack, swordDirIndex, swordAttackStage);
-    checkCoinCollision(playerX, playerY);
+    
+    if(!dead) {
+        checkCoinCollision(playerX, playerY);
+    }
 
     // Poruszanie się gracza
     if (!shooting && !swordAttack) {
@@ -149,7 +155,6 @@ function draw() {
     if(time % 5 == 0 && fireRateTime < FIRE_RATE) {
         fireRateTime++;
     }
-    healthHitbox.render(getX(playerX), getY(playerY), "red");
 }
 
 // Funkcja renderująca kafelki
@@ -180,6 +185,18 @@ function drawRotatedImage(image, x, y, width, height, angle) {
     ctx.translate(-translateX, -translateY);
 }
 
+function drawRotatedSubImage(image, xOffset, yOffset, swidth, sheight, x, y, width, height, angle) {
+    var translateX = x + width / 2;
+    var translateY = y + height / 2;
+
+    ctx.translate(translateX, translateY);
+    ctx.rotate(angle);
+    ctx.drawImage(image, xOffset, yOffset, swidth, sheight, -width / 2, -height / 2, width, height);
+
+    ctx.rotate(-angle);
+    ctx.translate(-translateX, -translateY);
+}
+
 function getTile(tileX, tileY) {
     var tile = tiles.find(function (tile) {
         var condX = tileX >= tile.xPos * TILE_SIZE && tileX < tile.xPos * TILE_SIZE + TILE_SIZE;
@@ -188,6 +205,7 @@ function getTile(tileX, tileY) {
     });
     return tile;
 }
+
 class Anim {
     constructor(image, x, y, width, height, frameTime) {
         this.image = image;
@@ -229,4 +247,11 @@ class Anim {
         var renderY = getY(this.yPos);
         ctx.drawImage(this.image, this.frame * this.width, 0, this.width, this.height, renderX, renderY, this.width, this.height);
     }
+}
+
+function getRadians(deg) {
+    return deg * Math.PI / 180;
+}
+function getDegrees(rad) {
+    return rad * 180 / Math.PI;
 }
