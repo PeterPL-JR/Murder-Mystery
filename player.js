@@ -58,6 +58,7 @@ function renderPlayers() {
         for(var shot of player.shots) {
             drawShot(getX(shot.xPos), getY(shot.yPos), shot.angle);
         }
+        healthHitbox.render(xPos, yPos, "yellow");
     }
 }
 
@@ -122,7 +123,7 @@ function drawPlayer(x, y, textureIndex, direction, movingIndex, shooting, shooti
     if(swordAttack) {
         var attackTextures = weaponTextures[swordDirIndex == LEFT ? "left" : "right"];
         var index = swordAttackStage ? WEAPON_DEFAULT : WEAPON_ACTIVE;
-        attackTextures = weaponTextures["left"];
+        // attackTextures = weaponTextures["left"];
 
         xOffset = attackTextures[index];
         yOffset = SWORD_TEX;

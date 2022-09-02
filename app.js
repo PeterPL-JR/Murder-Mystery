@@ -149,6 +149,7 @@ function draw() {
     if(time % 5 == 0 && fireRateTime < FIRE_RATE) {
         fireRateTime++;
     }
+    healthHitbox.render(getX(playerX), getY(playerY), "red");
 }
 
 // Funkcja renderująca kafelki

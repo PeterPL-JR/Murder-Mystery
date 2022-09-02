@@ -75,6 +75,51 @@ class ArrowShot {
 }
 
 function attack() {
+    var pos = [playerX, playerY];
+    
+    var delinquents = [];
+    for(var i = 0; i < otherPlayers.length; i++) {
+        var player = otherPlayers[i];
+        const playerPos = [player.xPos, player.yPos];
+
+        if(player.playerCode == playerCode) continue;
+        if(!Hitbox.isCollision(healthHitbox, healthHitbox, pos, playerPos)) continue;
+
+        var sides = Hitbox.getSide(healthHitbox, healthHitbox, pos, playerPos);
+        delinquents.push({
+            index: i,
+            side: sides.horizontal
+        });
+    }
+
+    if(delinquents.length == 0) {
+        swordDirIndex = (direction == LEFT || direction == RIGHT) ? direction : LEFT;
+        direction = swordDirIndex;
+        renderAttack();
+        return;
+    }
+    
+    var playerIndex = -1;
+    var playerPixels = -1;
+
+    for(var obj of delinquents) {
+        var player = otherPlayers[obj.index];
+        var playerPos = [player.xPos, player.yPos];
+
+        var pixels = Hitbox.commonPixels(healthHitbox, healthHitbox, pos, playerPos);
+        if(pixels > playerPixels) {
+            playerPixels = pixels;
+            playerIndex = obj.index;
+        }
+    }
+
+    var player = otherPlayers[playerIndex];
+    swordDirIndex = Hitbox.getSide(healthHitbox, healthHitbox, [player.xPos, player.yPos], pos).horizontal;
+    direction = swordDirIndex;
+    renderAttack();
+}
+
+function renderAttack() {
     const SWORD_ATTACK_TIME = 150;
     
     swordAttack = true;
