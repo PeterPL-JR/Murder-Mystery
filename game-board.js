@@ -14,7 +14,7 @@ class Board {
         this.init();
     }
     init() {
-        var divs = document.querySelectorAll(`#${this.id} > div:not([id='logo'])`);
+        var divs = document.querySelectorAll(`#${this.id} > div:not([id='logo']):not([id='button-div'])`);
         for(var div of divs) {
             this.boardDivs[div.id] = div;
             this.boardDataDivs[div.id] = div.querySelector("span");

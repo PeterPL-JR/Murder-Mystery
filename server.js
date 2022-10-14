@@ -58,21 +58,22 @@ server.listen(PORT, function() {
 
 // Funkcja dołączająca gracza do gry
 function connectPlayer(socket, data) {
+    var admin = false;
     var gameCode = data.code;
     socket.join(gameCode);
 
     // Tworzenie pokoju, jeżeli nie istnieje
     if(Object.keys(rooms).indexOf(gameCode) == -1) {
+        admin = true;
         createRoom(gameCode);
     }
 
     // Wysyłania klientowi mapy i danych kafelków
-    socket.emit("send-tiles", map.tiles);
-    socket.on("send-map", function() {
-        socket.emit("send-map", {
-            map: map.mapsObjs[maps[gameCode]],
-            coins: coinsGen[gameCode].mapCoins
-        });
+    socket.emit("send-begin-data", {
+        tiles: map.tiles,
+        map:  map.mapsObjs[maps[gameCode]],
+        coins: coinsGen[gameCode].mapCoins,
+        isAdmin: admin
     });
 
     // Przypisywanie graczowi podstawowych danych
@@ -86,6 +87,7 @@ function connectPlayer(socket, data) {
         playerCode: data.playerCode,
         nick: data.nick,
         gameCode: gameCode,
+        admin,
 
         xPos: 0, 
         yPos: 0,
@@ -94,9 +96,10 @@ function connectPlayer(socket, data) {
         moving: false,
         movingIndex: -1,
         skin: socket.skin,
-        shots: []
+        shots: [],
     });
     sockets[gameCode].push(socket);
+    sendPlayersNumber(gameCode);
 }
 
 // Funkcja odłączająca gracza z gry
@@ -106,6 +109,7 @@ function disconnectPlayer(socket) {
     
     var index = functions.findPlayerIndex(rooms[gameCode], playerCode);
     rooms[gameCode].splice(index, 1);
+    sendPlayersNumber(gameCode);
     
     // Usuwanie pokoju, jeżeli jest pusty
     if(rooms[gameCode].length == 0) {
@@ -190,6 +194,12 @@ function deleteRoom(gameCode) {
 
     coinsGen[gameCode].destroy();
     delete coinsGen[gameCode];
+}
+
+function sendPlayersNumber(gameCode) {
+    for(var playerSocket of sockets[gameCode]) {
+        playerSocket.emit("players-number", rooms[gameCode].length);
+    }
 }
 
 function findPlayerInRoom(gameCode, playerCode) {

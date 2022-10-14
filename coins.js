@@ -56,8 +56,8 @@ function pickCoin(index) {
         coins = 0;
     }
 
-    setBoardString("coins", coins);
-    setBoardString("arrows", arrows);
+    gameBoard.setString("coins", coins);
+    gameBoard.setString("arrows", arrows);
 }
 
 function checkCoinCollision(playerX, playerY) {

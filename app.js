@@ -51,24 +51,31 @@ function joinGame(data) {
     socket.on("send-data", function (data) {
         otherPlayers = data;
     });
-    socket.on("send-tiles", function (data) {
-        tilesObjs = data;
-        socket.emit("send-map");
-    });
-    socket.on("send-map", function (data) {
+    socket.on("send-begin-data", function(data) {
+        tilesObjs = data.tiles;
         initTiles(data.map.data); // Przygotuj kafelki
         createMapCoins(data.coins);
         spawnPositions = data.spawn;
+
+        lobbyBoard.setString("map-name", data.map.name);
+        lobbyBoard.setString("game-code", gameCode);
         gameBoard.setString("map-name", data.map.name);
 
         loadImages(); // Przygotuj grę
         draw(); // Rozpocznij grę!
+        
+        if(data.isAdmin) {
+            initAdmin();
+        }
     });
     socket.on("update-coins", function (data) {
         createMapCoins(data.mapCoins);
     });
     socket.on("defeat-player", function() {
         dead = true;
+    });
+    socket.on("players-number", function(data) {
+        lobbyBoard.setString("players", data + "/12");
     });
 
     gameContainer.style.display = "inline-block"; // Pokazanie obiektu <canvas>
@@ -109,6 +116,13 @@ function initTiles(tilesData) {
             });
         }
     }
+}
+
+function initAdmin() {
+    const button = document.createElement("button");
+    button.id = "start-game-button";
+    button.innerHTML = "Rozpocznij";
+    document.getElementById("button-div").appendChild(button);
 }
 
 // Funkcja renderująca
