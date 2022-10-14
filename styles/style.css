@@ -30,22 +30,19 @@ canvas {
     background-color: #0000;
 }
 
-#board {
+.board {
     width: 270px;
-    height: 370px;
+    height: max-content;
 
     background-color: #0008;
     margin-left: auto;
     margin-top: 55px;
-
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 20px;
+    padding: 20px;
 }
-#board > div:not([id="logo"]) {
+.board > div:not([id="logo"]) {
     font: normal 25px 'Verdana';
 }
-#board #logo {
+.board #logo {
     text-align: center;
     font: bold 35px 'Caladea';
     margin-bottom: 25px;
@@ -56,10 +53,14 @@ canvas {
     margin-left: -10px;
     margin-right: -10px;
 }
-#board > div > span {
+.board > div > span {
     color: #65ff65;
     font-weight: bold;
 }
 hr {
     opacity: 0.6;
+}
+
+#game-board {
+    display: none;
 }

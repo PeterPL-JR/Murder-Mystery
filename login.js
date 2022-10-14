@@ -29,7 +29,7 @@ button.onclick = function () {
     }
 }
 switchSkin(0);
-button.click();
+//button.click();
 
 // Funkcja przełączająca skina
 function switchSkin(direction) {

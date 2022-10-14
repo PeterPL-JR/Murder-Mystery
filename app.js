@@ -40,7 +40,7 @@ function joinGame(data) {
     canvas.height = HEIGHT;
 
     initHitboxes();
-    initBoard();
+    initBoards();
 
     socket = data.socket;
     nick = data.nick;
@@ -59,7 +59,7 @@ function joinGame(data) {
         initTiles(data.map.data); // Przygotuj kafelki
         createMapCoins(data.coins);
         spawnPositions = data.spawn;
-        setBoardString("map-name", data.map.name);
+        gameBoard.setString("map-name", data.map.name);
 
         loadImages(); // Przygotuj grę
         draw(); // Rozpocznij grę!
