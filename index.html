@@ -39,9 +39,10 @@
     <h2>by <span>PeterPL</span></h2>
     <div id="inputs-div">
         Kod gry<br>
-        <input id="code" value="1224" spellcheck="false"><br>
+        <input id="code" value="1224" spellcheck="false" autocomplete="off"><br>
+        <div id="info"></div>
         Twój nick<br>
-        <input id="nick" value="PeterPLJR" spellcheck="false"><br>
+        <input id="nick" value="PeterPLJR" spellcheck="false" autocomplete="off"><br>
         <div style="clear: both;"></div>
         <button id="button">Dołącz</button>
     </div>
@@ -55,6 +56,7 @@
     <!-- Najważniejsze skrypty -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="/hitbox.js"></script>
+    <script src="/lobby.js"></script>
     <script src="/app.js"></script>
     <script src="/input.js"></script>
     <script src="/game-board.js"></script>

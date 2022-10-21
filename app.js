@@ -12,6 +12,8 @@ var playerCode; // Kod gracza
 
 var socket; // Gniazdo Socket.io
 var gameCode; // Kod gry
+var isAdmin;
+var gameStarted = false;
 
 const TILE_SIZE = 96; // Wielkość pojedynczego kafelka
 const MAP_SIZE = 40; // Wielkość mapy
@@ -54,7 +56,6 @@ function joinGame(data) {
     socket.on("send-begin-data", function(data) {
         tilesObjs = data.tiles;
         initTiles(data.map.data); // Przygotuj kafelki
-        createMapCoins(data.coins);
         spawnPositions = data.spawn;
 
         lobbyBoard.setString("map-name", data.map.name);
@@ -63,10 +64,7 @@ function joinGame(data) {
 
         loadImages(); // Przygotuj grę
         draw(); // Rozpocznij grę!
-        
-        if(data.isAdmin) {
-            initAdmin();
-        }
+        isAdmin = data.isAdmin;
     });
     socket.on("update-coins", function (data) {
         createMapCoins(data.mapCoins);
@@ -75,7 +73,17 @@ function joinGame(data) {
         dead = true;
     });
     socket.on("players-number", function(data) {
-        lobbyBoard.setString("players", data + "/12");
+        if(isAdmin) {
+            getAdmin(data);
+        }
+        lobbyBoard.setString("players", data + "/" + _MAX_PLAYERS);
+    });
+    socket.on("get-admin", function(data) {
+        isAdmin = true;
+        getAdmin(data);
+    });
+    socket.on("start-game", function(data) {
+        startGame(data);
     });
 
     gameContainer.style.display = "inline-block"; // Pokazanie obiektu <canvas>
@@ -116,13 +124,6 @@ function initTiles(tilesData) {
             });
         }
     }
-}
-
-function initAdmin() {
-    const button = document.createElement("button");
-    button.id = "start-game-button";
-    button.innerHTML = "Rozpocznij";
-    document.getElementById("button-div").appendChild(button);
 }
 
 // Funkcja renderująca

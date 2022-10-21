@@ -2,6 +2,10 @@ var choosenSkin = 0; // Aktualnie wybrany skin
 
 var button = document.getElementById("button"); // Przycisk dołączający do gry
 var textureDiv = document.getElementById("skin-div"); // Div wyboru skina
+var infoDiv = document.getElementById("info");
+
+const codeInput = document.getElementById("code");
+const nickInput = document.getElementById("nick");
 
 // Strzałki
 var arrow1 = document.getElementById("arrow1");
@@ -17,17 +21,32 @@ arrow2.onmousedown = function() {
 
 // Kod dziejący się po kliknięciu przycisku
 button.onclick = function () {
-    var code = document.getElementById("code").value;
-    var nick = document.getElementById("nick").value;
+    var code = codeInput.value;
+    var nick = nickInput.value;
     var playerCode = getRandom(1_000_000_000_000_000, 9_999_999_999_999_999);
 
     // Dołącz, jeżeli nick nie jest pusty i kod gry jest liczbą
     if (!isNaN(code) && nick != "") {
         var socket = io();
-        socket.emit("join-game", { code, nick, playerCode, choosenSkin });
-        joinGame({ socket, nick, playerCode, choosenSkin, code });
+        socket.emit("check-room", {code});
+        socket.on("check-room", function(data) {
+
+            if(data.isGameStarted)
+                infoDiv.innerHTML = "(<b>Gra już trwa</b>)";
+            else if(data.playersNumber >= _MAX_PLAYERS) 
+                infoDiv.innerHTML = "(<b>Pokój jest pełny!</b>)";
+            else {
+                socket.emit("join-game", { code, nick, playerCode, choosenSkin });
+                joinGame({ socket, nick, playerCode, choosenSkin, code });
+            }
+        });
     }
 }
+
+codeInput.onkeydown = function() {
+    infoDiv.innerHTML = null;
+}
+
 switchSkin(0);
 //button.click();
 

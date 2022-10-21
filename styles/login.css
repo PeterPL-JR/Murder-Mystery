@@ -111,3 +111,16 @@ input {
 input:focus {
     box-shadow: 7px 7px 1px #989893;
 }
+
+#info {
+    font: normal 30px 'Calibri';
+    margin-top: 12px;
+    margin-bottom: 15px;
+}
+#info b {
+    text-shadow: 4px 4px 5px #323232;
+}
+
+input#code {
+    margin-bottom: 0px;
+}

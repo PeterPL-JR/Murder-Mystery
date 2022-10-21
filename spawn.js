@@ -8,6 +8,9 @@ class CoinsGenerator {
         this.sendCoins = sendCoins;
         this.spawnPositions = spawnPositions;
         this.gameCode = gameCode;
+    }
+    
+    startGen() {
         this.initSpawn();
     }
 

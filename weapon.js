@@ -75,6 +75,7 @@ class ArrowShot {
 }
 
 function attack() {
+    if(!gameStarted) return;
     var pos = [playerX, playerY];
     
     var delinquents = [];
@@ -142,6 +143,8 @@ function renderAttack() {
 }
 
 function shoot(mouseX, mouseY) {
+    if(!gameStarted) return;
+
     var playerCenterX = playerX + PLAYER_SIZE / 2;
     var playerCenterY = playerY + PLAYER_SIZE / 2;
 

@@ -14,6 +14,7 @@ class Board {
         this.init();
     }
     init() {
+        this.div = document.getElementById(this.id);
         var divs = document.querySelectorAll(`#${this.id} > div:not([id='logo']):not([id='button-div'])`);
         for(var div of divs) {
             this.boardDivs[div.id] = div;
