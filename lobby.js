@@ -20,7 +20,10 @@ function initAdminButton() {
         button.onclick = function() {
             socket.emit("start-game", {gameCode});
         }
-        document.getElementById("button-div").appendChild(button);
+        const buttonDiv = document.getElementById("button-div");
+        if(buttonDiv) {
+            buttonDiv.appendChild(button);
+        }
     }
 }
 

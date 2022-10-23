@@ -1,12 +1,12 @@
 // Funkcja wyszukująca gracza w tablicy na podstawie jego kodu
-exports.findPlayerIndex = function(room, code) {
-    return room.findIndex(function(obj) {
+exports.findPlayerIndex = function(playersArray, code) {
+    return playersArray.findIndex(function(obj) {
         return obj.playerCode == code;
     });
 }
 // Funkcja wyszukująca index gracza w tablicy na podstawie jego kodu
-exports.findPlayer = function(room, code) {
-    return room.find(function(obj) {
+exports.findPlayer = function(playersArray, code) {
+    return playersArray.find(function(obj) {
         return obj.playerCode == code;
     });
 }

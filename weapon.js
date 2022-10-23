@@ -160,7 +160,7 @@ function shoot(mouseX, mouseY) {
     send();
 
     arrows--;
-    setBoardString("arrows", arrows);
+    gameBoard.setString("arrows", arrows);
 }
 
 function drawShot(x, y, angle) {

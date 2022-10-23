@@ -16,11 +16,6 @@ const { CoinsGenerator } = require("./spawn");
 // Zmienne 
 const PORT = 4000; // Port
 const rooms = {}; // Pokoje
-const maps = {}; // Mapy
-
-const sockets = {};
-const coinsGen = {};
-const gameStarted = {};
 
 // Tworzenie aplikacji
 app.use(express.static(
@@ -79,7 +74,7 @@ function connectPlayer(socket, data) {
     // Wysyłania klientowi mapy i danych kafelków
     socket.emit("send-begin-data", {
         tiles: map.tiles,
-        map: map.mapsObjs[maps[gameCode]],
+        map: map.mapsObjs[rooms[gameCode].map],
         isAdmin: admin
     });
 
@@ -90,7 +85,7 @@ function connectPlayer(socket, data) {
     socket.gameCode = gameCode; // Kod gry
 
     // Dodawanie gracza do pokoju
-    rooms[gameCode].push({
+    rooms[gameCode].players.push({
         playerCode: data.playerCode,
         nick: data.nick,
         gameCode: gameCode,
@@ -105,7 +100,7 @@ function connectPlayer(socket, data) {
         skin: socket.skin,
         shots: [],
     });
-    sockets[gameCode].push(socket);
+    rooms[gameCode].sockets.push(socket);
     sendPlayersNumber(gameCode);
 }
 
@@ -114,29 +109,29 @@ function disconnectPlayer(socket) {
     var playerCode = socket.playerCode;
     var gameCode = socket.gameCode;
 
-    var index = functions.findPlayerIndex(rooms[gameCode], playerCode);
-    const deletedAdmin = rooms[gameCode][index].admin;
+    var index = functions.findPlayerIndex(rooms[gameCode].players, playerCode);
+    const deletedAdmin = rooms[gameCode].players[index].admin;
     
-    rooms[gameCode].splice(index, 1);
-    sockets[gameCode].splice(index, 1);
+    rooms[gameCode].players.splice(index, 1);
+    rooms[gameCode].sockets.splice(index, 1);
     sendPlayersNumber(gameCode);
 
     // Usuwanie pokoju, jeżeli jest pusty
-    if (rooms[gameCode].length == 0) {
+    if (rooms[gameCode].players.length == 0) {
         deleteRoom(gameCode);
         return;
     }
     if(deletedAdmin) {
-        rooms[gameCode][0].admin = true;
-        sockets[gameCode][0].emit("get-admin", rooms[gameCode].length);
+        rooms[gameCode].players[0].admin = true;
+        rooms[gameCode].sockets[0].emit("get-admin", rooms[gameCode].players.length);
     }
 }
 
 function startGame(gameCode) {
-    gameStarted[gameCode] = true;
-    coinsGen[gameCode].startGen();
-    for(var socket of sockets[gameCode]) {
-        socket.emit("start-game", {coins: coinsGen[gameCode].mapCoins});
+    rooms[gameCode].gameStarted = true;
+    rooms[gameCode].coinsGen.startGen();
+    for(var socket of rooms[gameCode].sockets) {
+        socket.emit("start-game", {coins: rooms[gameCode].coinsGen.mapCoins});
     }
 }
 
@@ -167,19 +162,19 @@ function sendData(socket) {
     setInterval(function () {
         for (var name in rooms) {
             var room = rooms[name];
-            socket.to(name).emit("send-data", room);
+            socket.to(name).emit("send-data", room.players);
         }
     }, 15);
 }
 function sendCoins(mapCoins, gameCode) {
-    var socketsArray = sockets[gameCode];
+    var socketsArray = rooms[gameCode].sockets;
     for (var socket of socketsArray) {
         socket.emit("update-coins", { mapCoins });
     }
 }
 function deleteCoin(data) {
     var gameCode = data.gameCode;
-    var gen = coinsGen[gameCode];
+    var gen = rooms[gameCode].coinsGen;
 
     gen.destroyCoin(data.coinIndex);
     sendCoins(gen.mapCoins, gameCode);
@@ -190,54 +185,50 @@ function defeatPlayer(data) {
     var gameCode = data.gameCode;
     var room = rooms[gameCode];
 
-    var playerIndex = functions.findPlayerIndex(room, playerCode);
-    var defeatedPlayer = room[playerIndex];
+    var playerIndex = functions.findPlayerIndex(room.players, playerCode);
+    var defeatedPlayer = room.players[playerIndex];
     defeatedPlayer.dead = true;
 
     defeatedPlayer.dieX = defeatedPlayer.xPos;
     defeatedPlayer.dieY = defeatedPlayer.yPos;
 
-    var socket = sockets[gameCode][playerIndex];
+    var socket = rooms[gameCode].sockets[playerIndex];
     socket.emit("defeat-player");
 }
 
 // Funkcja tworząca nowy pokój
 function createRoom(gameCode) {
     var mapIndex = functions.getRandom(0, map.MAPS - 1);
-    rooms[gameCode] = [];
-    sockets[gameCode] = [];
-    maps[gameCode] = mapIndex;
-    gameStarted[gameCode] = false;
-    coinsGen[gameCode] = new CoinsGenerator(map.mapsObjs[mapIndex].spawn, gameCode, sendCoins);
+    rooms[gameCode] = {
+        players: [],
+        sockets: [],
+        map: mapIndex,
+        gameStarted: false,
+        coinsGen: new CoinsGenerator(map.mapsObjs[mapIndex].spawn, gameCode, sendCoins)
+    };
 }
 
 function deleteRoom(gameCode) {
+    rooms[gameCode].coinsGen.destroy();
     delete rooms[gameCode];
-    delete maps[gameCode];
-    delete sockets[gameCode];
-    delete gameStarted[gameCode];
-
-    coinsGen[gameCode].destroy();
-    delete coinsGen[gameCode];
 }
 
 function checkRoom(data, socket) {
     const room = rooms[data.code];
-    const playersNumber = (room) ? room.length : 0;
+    const playersNumber = (room) ? room.players.length : 0;
 
-    const gameStartedBool = gameStarted[data.code];
-    const isGameStarted = gameStartedBool == undefined ? false : gameStartedBool;
+    const isGameStarted = room == undefined ? false : room.gameStarted;
     socket.emit("check-room", {playersNumber, isGameStarted});
 }
 
 function sendPlayersNumber(gameCode) {
-    for (var playerSocket of sockets[gameCode]) {
-        playerSocket.emit("players-number", rooms[gameCode].length);
+    for (var playerSocket of rooms[gameCode].sockets) {
+        playerSocket.emit("players-number", rooms[gameCode].players.length);
     }
 }
 
 function findPlayerInRoom(gameCode, playerCode) {
     var room = rooms[gameCode];
-    var index = functions.findPlayerIndex(room, playerCode);
-    return room[index];
+    var index = functions.findPlayerIndex(room.players, playerCode);
+    return room.players[index];
 }
