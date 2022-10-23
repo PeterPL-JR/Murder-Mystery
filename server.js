@@ -12,6 +12,7 @@ const io = new Server(server);
 const functions = require("./functions");
 const map = require("./maps");
 const { CoinsGenerator } = require("./spawn");
+const { LobbyTimer, GameTimer } = require("./time");
 
 // Zmienne 
 const PORT = 4000; // Port
@@ -130,9 +131,13 @@ function disconnectPlayer(socket) {
 function startGame(gameCode) {
     rooms[gameCode].gameStarted = true;
     rooms[gameCode].coinsGen.startGen();
+    rooms[gameCode].gameTimer.startTimer();
+
     for(var socket of rooms[gameCode].sockets) {
         socket.emit("start-game", {coins: rooms[gameCode].coinsGen.mapCoins});
     }
+}
+function stopGame(gameCode) {
 }
 
 // Funkcja poruszająca gracza
@@ -204,7 +209,9 @@ function createRoom(gameCode) {
         sockets: [],
         map: mapIndex,
         gameStarted: false,
-        coinsGen: new CoinsGenerator(map.mapsObjs[mapIndex].spawn, gameCode, sendCoins)
+        coinsGen: new CoinsGenerator(map.mapsObjs[mapIndex].spawn, gameCode, sendCoins),
+        lobbyTimer: new LobbyTimer(gameCode, sendLobbyTime),
+        gameTimer: new GameTimer(gameCode, sendGameTime, stopGame)
     };
 }
 
@@ -219,6 +226,15 @@ function checkRoom(data, socket) {
 
     const isGameStarted = room == undefined ? false : room.gameStarted;
     socket.emit("check-room", {playersNumber, isGameStarted});
+}
+
+function sendLobbyTime(gameCode, timeString) {
+
+}
+function sendGameTime(gameCode, timeString) {
+    for(var socket of rooms[gameCode].sockets) {
+        socket.emit("game-time", {timeString});
+    }
 }
 
 function sendPlayersNumber(gameCode) {

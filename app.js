@@ -85,6 +85,12 @@ function joinGame(data) {
     socket.on("start-game", function(data) {
         startGame(data);
     });
+    socket.on("lobby-time", function(data) {
+
+    });
+    socket.on("game-time", function(data) {
+        gameBoard.setString("time-left", data.timeString);
+    });
 
     gameContainer.style.display = "inline-block"; // Pokazanie obiektu <canvas>
     loginContainer.style.display = "none"; // Ukrycie interfejsu logowania
