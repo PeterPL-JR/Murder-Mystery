@@ -86,7 +86,7 @@ function joinGame(data) {
         startGame(data);
     });
     socket.on("lobby-time", function(data) {
-
+        lobbyBoard.setString("time-left", data.timeString);
     });
     socket.on("game-time", function(data) {
         gameBoard.setString("time-left", data.timeString);

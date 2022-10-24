@@ -31,7 +31,7 @@ canvas {
 }
 
 .board {
-    width: 270px;
+    width: 280px;
     height: max-content;
 
     background-color: #0008;

@@ -1,8 +1,5 @@
-// const _MIN_PLAYERS = 4;
-// const _MAX_PLAYERS = 12;
-
-const _MIN_PLAYERS = 1;
-const _MAX_PLAYERS = 2;
+const _MIN_PLAYERS = 4;
+const _MAX_PLAYERS = 12;
 
 const START_BUTTON_ID = "start-game-button";
 

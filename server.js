@@ -102,6 +102,8 @@ function connectPlayer(socket, data) {
         shots: [],
     });
     rooms[gameCode].sockets.push(socket);
+
+    rooms[gameCode].lobbyTimer.changePlayers(rooms[gameCode].players.length);
     sendPlayersNumber(gameCode);
 }
 
@@ -115,6 +117,8 @@ function disconnectPlayer(socket) {
     
     rooms[gameCode].players.splice(index, 1);
     rooms[gameCode].sockets.splice(index, 1);
+
+    rooms[gameCode].lobbyTimer.changePlayers(rooms[gameCode].players.length);
     sendPlayersNumber(gameCode);
 
     // Usuwanie pokoju, jeżeli jest pusty
@@ -210,13 +214,16 @@ function createRoom(gameCode) {
         map: mapIndex,
         gameStarted: false,
         coinsGen: new CoinsGenerator(map.mapsObjs[mapIndex].spawn, gameCode, sendCoins),
-        lobbyTimer: new LobbyTimer(gameCode, sendLobbyTime),
+        lobbyTimer: new LobbyTimer(gameCode, sendLobbyTime, startGame),
         gameTimer: new GameTimer(gameCode, sendGameTime, stopGame)
     };
+    rooms[gameCode].lobbyTimer.startTimer();
 }
 
 function deleteRoom(gameCode) {
     rooms[gameCode].coinsGen.destroy();
+    rooms[gameCode].lobbyTimer.stopTimer();
+    rooms[gameCode].gameTimer.stopTimer();
     delete rooms[gameCode];
 }
 
@@ -229,7 +236,9 @@ function checkRoom(data, socket) {
 }
 
 function sendLobbyTime(gameCode, timeString) {
-
+    for(var socket of rooms[gameCode].sockets) {
+        socket.emit("lobby-time", {timeString});
+    }
 }
 function sendGameTime(gameCode, timeString) {
     for(var socket of rooms[gameCode].sockets) {
