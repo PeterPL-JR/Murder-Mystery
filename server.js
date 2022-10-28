@@ -133,15 +133,30 @@ function disconnectPlayer(socket) {
 }
 
 function startGame(gameCode) {
-    rooms[gameCode].gameStarted = true;
-    rooms[gameCode].coinsGen.startGen();
-    rooms[gameCode].gameTimer.startTimer();
+    const room = rooms[gameCode];
+    room.gameStarted = true;
+    room.coinsGen.startGen();
+    room.gameTimer.startTimer();
+    room.lobbyTimer.stopTimer();
 
-    for(var socket of rooms[gameCode].sockets) {
-        socket.emit("start-game", {coins: rooms[gameCode].coinsGen.mapCoins});
+    const mapObj = map.mapsObjs[room.map];
+    const spawnPositions = Array.from(mapObj.spawn);
+    
+    for(var i = 0; i < room.players.length; i++) {
+        const randPos = functions.getRandom(0, spawnPositions.length - 1);
+        const randX = spawnPositions[randPos][0];
+        const randY = spawnPositions[randPos][1];
+
+        room.sockets[i].emit("start-game", {
+            coins: room.coinsGen.mapCoins,
+            xPos: randX,
+            yPos: randY
+        });
+        spawnPositions.splice(randPos, 1);
     }
 }
 function stopGame(gameCode) {
+    rooms[gameCode].gameTimer.stopTimer();
 }
 
 // Funkcja poruszająca gracza

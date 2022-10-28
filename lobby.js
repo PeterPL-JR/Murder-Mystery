@@ -32,6 +32,10 @@ function removeAdminButton() {
 function startGame(data) {
     gameStarted = true;
     createMapCoins(data.coins);
+
+    playerX = data.xPos * TILE_SIZE - PLAYER_SIZE / 2 - TILE_SIZE / 2;
+    playerY = data.yPos * TILE_SIZE - PLAYER_SIZE / 2 + TILE_SIZE / 2;
+    send();
     
     lobbyBoard.div.remove();
     gameBoard.div.style.display = "block";

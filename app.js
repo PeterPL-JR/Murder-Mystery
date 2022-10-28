@@ -110,6 +110,7 @@ function loadImages() {
     // Ładowanie tektur gracza
     for (var i = 0; i < _SKINS; i++) {
         skinsImages[i] = createImage("players/player" + (i + 1) + ".png");
+        ghostsImages[i] = createImage("ghosts/player" + (i + 1) + ".png");
     }
 
     weaponTextures = {
@@ -161,7 +162,7 @@ function draw() {
     drawNick(nick, WIDTH / 2, Y_OFFSET - 18);
 
     // Renderowanie Gracza
-    drawPlayer(X_OFFSET, Y_OFFSET, skinIndex, direction, movingIndex, shooting, shootingDirIndex, leftButton, charged, swordAttack, swordDirIndex, swordAttackStage);
+    drawPlayer(X_OFFSET, Y_OFFSET, skinIndex, direction, movingIndex, shooting, shootingDirIndex, leftButton, charged, swordAttack, swordDirIndex, swordAttackStage, dead);
     
     if(!dead) {
         checkCoinCollision(playerX, playerY);

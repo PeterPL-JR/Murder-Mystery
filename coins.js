@@ -9,8 +9,8 @@ var BOW_PRICE = 10;
 var ARROWS_PRICE = 10;
 
 function addCoin(coinsArray, index) {
-    var animX = coinsArray[index].xPos * TILE_SIZE;
-    var animY = coinsArray[index].yPos * TILE_SIZE;
+    var animX = coinsArray[index].xPos * TILE_SIZE + TILE_SIZE / 2 - COIN_SIZE / 2;
+    var animY = coinsArray[index].yPos * TILE_SIZE + TILE_SIZE / 2 - COIN_SIZE / 2;
     mapCoins[index] = {
         xPos: animX,
         yPos: animY,

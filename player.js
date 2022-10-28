@@ -22,6 +22,7 @@ const _SKINS = 13; // Ilość postaci
 var skinIndex = 0; // Index skina gracza
 
 var skinsImages = []; // Obrazki postaci
+var ghostsImages = []; // Obrazki duchów
 var otherPlayers = []; // Tablica innych graczy
 var shots = [];
 
@@ -62,7 +63,7 @@ function renderPlayers() {
 
         var xPos = getX(player.xPos);
         var yPos = getY(player.yPos);
-        drawPlayer(xPos, yPos, player.skin, player.direction, player.movingIndex, player.shooting, player.shootingDirIndex, player.leftButton, player.charged, player.swordAttack, player.swordDirIndex, player.swordAttackStage);
+        drawPlayer(xPos, yPos, player.skin, player.direction, player.movingIndex, player.shooting, player.shootingDirIndex, player.leftButton, player.charged, player.swordAttack, player.swordDirIndex, player.swordAttackStage, player.dead);
         
         var textX = xPos + PLAYER_SIZE / 2;
         var textY = yPos - 18;
@@ -116,8 +117,8 @@ function playerMoving() {
 }
 
 // Funkcja renderująca dowolnego gracza na mapie
-function drawPlayer(x, y, textureIndex, direction, movingIndex, shooting, shootingIndex, leftButton, charged, swordAttack, swordDirIndex, swordAttackStage) {
-    var texture = skinsImages[textureIndex];
+function drawPlayer(x, y, textureIndex, direction, movingIndex, shooting, shootingIndex, leftButton, charged, swordAttack, swordDirIndex, swordAttackStage, dead) {
+    var texture = (dead ? ghostsImages : skinsImages)[textureIndex];
     var xOffset = direction;
     var yOffset = movingIndex + 1;
 
