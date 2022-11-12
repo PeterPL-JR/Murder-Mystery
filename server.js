@@ -25,6 +25,10 @@ app.use(express.static(
 map.initMaps();
 map.loadTiles();
 
+const ROLE_INNOCENT = 0;
+const ROLE_MURDERER = 1;
+const ROLE_DETECTIVE = 2;
+
 // Kod dziejący się po uruchomieniu strony
 io.on("connection", function (socket) {
 
@@ -91,11 +95,12 @@ function connectPlayer(socket, data) {
         nick: data.nick,
         gameCode: gameCode,
         admin,
-
+        
         xPos: 0,
         yPos: 0,
         direction: 0,
-
+        
+        role: ROLE_INNOCENT,
         moving: false,
         movingIndex: -1,
         skin: socket.skin,
@@ -139,24 +144,49 @@ function startGame(gameCode) {
     room.gameTimer.startTimer();
     room.lobbyTimer.stopTimer();
 
+    const randPositions = createRandPositions(room);
+    createRoles(room);
+
+    for(var i = 0; i < room.players.length; i++) {
+        room.sockets[i].emit("start-game", {
+            coins: room.coinsGen.mapCoins,
+            role: room.players[i].role,
+
+            xPos: randPositions[i].randX,
+            yPos: randPositions[i].randY
+        });
+    }
+}
+function stopGame(gameCode) {
+    rooms[gameCode].gameTimer.stopTimer();
+}
+
+function createRandPositions(room) {
     const mapObj = map.mapsObjs[room.map];
     const spawnPositions = Array.from(mapObj.spawn);
+    const randPositions = [];
     
     for(var i = 0; i < room.players.length; i++) {
         const randPos = functions.getRandom(0, spawnPositions.length - 1);
         const randX = spawnPositions[randPos][0];
         const randY = spawnPositions[randPos][1];
 
-        room.sockets[i].emit("start-game", {
-            coins: room.coinsGen.mapCoins,
-            xPos: randX,
-            yPos: randY
-        });
+        randPositions[i] = {randX, randY};
         spawnPositions.splice(randPos, 1);
     }
+    return randPositions;
 }
-function stopGame(gameCode) {
-    rooms[gameCode].gameTimer.stopTimer();
+function createRoles(room) {
+    var murdererIndex = functions.getRandom(0, room.players.length - 1);
+    room.players[murdererIndex].role = ROLE_MURDERER;
+    room.players[murdererIndex].kills = 0;
+
+    var detectiveIndex = functions.getRandom(0, room.players.length - 1);
+    if(detectiveIndex == murdererIndex) {
+        detectiveIndex++;
+        if(detectiveIndex >= room.players.length) detectiveIndex = 0;
+    }
+    room.players[detectiveIndex].role = ROLE_DETECTIVE;
 }
 
 // Funkcja poruszająca gracza
@@ -206,8 +236,14 @@ function deleteCoin(data) {
 
 function defeatPlayer(data) {
     var playerCode = data.playerId;
+    var murdererCode = data.playerCode;
     var gameCode = data.gameCode;
     var room = rooms[gameCode];
+
+    const murderer = findPlayerInRoom(gameCode, murdererCode);
+    if(murderer.role == ROLE_MURDERER) murderer.kills++;
+    else {
+    }
 
     var playerIndex = functions.findPlayerIndex(room.players, playerCode);
     var defeatedPlayer = room.players[playerIndex];

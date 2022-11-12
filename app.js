@@ -71,6 +71,10 @@ function joinGame(data) {
     });
     socket.on("defeat-player", function() {
         dead = true;
+        role = ROLE_DEAD;
+
+        gameBoard.setString("role", ROLES_NAMES[ROLE_DEAD]);
+        gameBoard.setColor("role", ROLES_COLORS[ROLE_DEAD]);
     });
     socket.on("players-number", function(data) {
         if(isAdmin) {

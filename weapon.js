@@ -75,7 +75,7 @@ class ArrowShot {
 }
 
 function attack() {
-    if(!gameStarted) return;
+    if(role != ROLE_MURDERER || !gameStarted) return;
     var pos = [playerX, playerY];
     
     var delinquents = [];
@@ -119,7 +119,7 @@ function attack() {
     direction = swordDirIndex;
 
     var playerId = player.playerCode;
-    socket.emit("defeat-player", {playerId, gameCode});
+    socket.emit("defeat-player", {playerId, gameCode, playerCode});
     renderAttack();
 }
 

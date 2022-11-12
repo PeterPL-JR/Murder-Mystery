@@ -1,4 +1,4 @@
-const _MIN_PLAYERS = 4;
+const _MIN_PLAYERS = 1;
 const _MAX_PLAYERS = 12;
 
 const START_BUTTON_ID = "start-game-button";
@@ -33,7 +33,11 @@ function startGame(data) {
     gameStarted = true;
     createMapCoins(data.coins);
 
-    playerX = data.xPos * TILE_SIZE - PLAYER_SIZE / 2 - TILE_SIZE / 2;
+	role = data.role;
+    gameBoard.setString("role", ROLES_NAMES[role]);
+    gameBoard.setColor("role", ROLES_COLORS[role]);
+
+    playerX = data.xPos * TILE_SIZE - PLAYER_SIZE / 2 + TILE_SIZE / 2;
     playerY = data.yPos * TILE_SIZE - PLAYER_SIZE / 2 + TILE_SIZE / 2;
     send();
     

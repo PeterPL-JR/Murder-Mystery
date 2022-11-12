@@ -14,6 +14,7 @@ const Y_OFFSET = HEIGHT / 2 - PLAYER_SIZE / 2;
 var direction = 0;
 var moving = false;
 var dead = false;
+var role;
 
 var movingTime = 0;
 var movingIndex = -1;
