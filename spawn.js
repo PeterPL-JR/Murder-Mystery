@@ -1,5 +1,7 @@
-const _COINS = 12;
+const { _MAX_PLAYERS } = require("./server");
 const {getRandom} = require("./functions");
+
+const _COINS = _MAX_PLAYERS;
 
 class CoinsGenerator {
     constructor(spawnPositions, gameCode, sendCoins) {

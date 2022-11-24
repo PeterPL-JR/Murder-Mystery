@@ -8,6 +8,10 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 
+// Ilość graczy maksymalna
+const _MAX_PLAYERS = 12;
+exports._MAX_PLAYERS = _MAX_PLAYERS;
+
 // Eksportowanie modułów
 const functions = require("./functions");
 const map = require("./maps");
@@ -51,7 +55,7 @@ io.on("connection", function (socket) {
             deleteCoin(data);
         });
         socket.on("defeat-player", function (data) {
-            defeatPlayer(data);
+            defeatPlayer(data.playerId, data.gameCode, data.playerCode);
         });
         sendData(socket);
     });
@@ -116,9 +120,14 @@ function connectPlayer(socket, data) {
 function disconnectPlayer(socket) {
     var playerCode = socket.playerCode;
     var gameCode = socket.gameCode;
-
+    
     var index = functions.findPlayerIndex(rooms[gameCode].players, playerCode);
-    const deletedAdmin = rooms[gameCode].players[index].admin;
+    const admin = rooms[gameCode].players[index];
+    const deletedAdmin = admin ? admin.admin : false;
+
+    if(!rooms[gameCode].players[index].dead) {
+        defeatPlayer(playerCode, gameCode, null);
+    }
     
     rooms[gameCode].players.splice(index, 1);
     rooms[gameCode].sockets.splice(index, 1);
@@ -156,6 +165,7 @@ function startGame(gameCode) {
             yPos: randPositions[i].randY
         });
     }
+    sendInnocents(gameCode);
 }
 function stopGame(gameCode) {
     rooms[gameCode].gameTimer.stopTimer();
@@ -216,7 +226,10 @@ function sendData(socket) {
     setInterval(function () {
         for (var name in rooms) {
             var room = rooms[name];
-            socket.to(name).emit("send-data", room.players);
+            socket.to(name).emit("send-data", {
+                players: room.players,
+                deadTextures: room.deadTextures
+            });
         }
     }, 15);
 }
@@ -234,26 +247,79 @@ function deleteCoin(data) {
     sendCoins(gen.mapCoins, gameCode);
 }
 
-function defeatPlayer(data) {
-    var playerCode = data.playerId;
-    var murdererCode = data.playerCode;
-    var gameCode = data.gameCode;
+function defeatPlayer(playerCode, gameCode, murdererCode) {
     var room = rooms[gameCode];
 
-    const murderer = findPlayerInRoom(gameCode, murdererCode);
-    if(murderer.role == ROLE_MURDERER) murderer.kills++;
-    else {
+    if(murdererCode && murdererCode != null) {
+        const murderer = findPlayerInRoom(gameCode, murdererCode);
+        if(murderer.role == ROLE_MURDERER) murderer.kills++;
+        else {
+        }
     }
 
     var playerIndex = functions.findPlayerIndex(room.players, playerCode);
     var defeatedPlayer = room.players[playerIndex];
     defeatedPlayer.dead = true;
 
-    defeatedPlayer.dieX = defeatedPlayer.xPos;
-    defeatedPlayer.dieY = defeatedPlayer.yPos;
+    room.deadTextures.push({
+        index: defeatedPlayer.skin,
+        xPos: defeatedPlayer.xPos,
+        yPos: defeatedPlayer.yPos
+    });
 
-    var socket = rooms[gameCode].sockets[playerIndex];
+    var socket = room.sockets[playerIndex];
     socket.emit("defeat-player");
+
+    var murdererVictory = true;
+    for(var player of room.players) {
+        if(player.role != ROLE_MURDERER && !player.dead) {
+            murdererVictory = false;
+            break;
+        }
+    }
+
+    const murdererObj = findMurderer(gameCode);
+    const detectiveObj = findDetective(gameCode);
+
+    if(murdererObj && murdererObj.dead) {
+        stopGame(gameCode);
+    }
+    if(detectiveObj && detectiveObj.dead) {
+        for(var playerSocket of room.sockets) {
+            playerSocket.emit("defeat-detective");
+        }
+    }
+
+    if(murdererVictory) {
+        stopGame(gameCode);
+    }
+    sendInnocents(gameCode);
+}
+
+function findMurderer(gameCode) {
+    return rooms[gameCode].players.find(function(player){
+        return player.role == ROLE_MURDERER;
+    });
+}
+function findDetective(gameCode) {
+    return rooms[gameCode].players.find(function(player){
+        return player.role == ROLE_DETECTIVE;
+    });
+}
+
+function sendInnocents(gameCode) {
+    const room = rooms[gameCode];
+    const playersArray = room.players;
+
+    var playersNumber = 0;
+    for(var player of playersArray) {
+        if(player.role == ROLE_INNOCENT && !player.dead) {
+            playersNumber++;
+        }
+    }
+    for(var playerSocket of room.sockets) {
+        playerSocket.emit("players-number-game", playersNumber);
+    }
 }
 
 // Funkcja tworząca nowy pokój
@@ -264,6 +330,8 @@ function createRoom(gameCode) {
         sockets: [],
         map: mapIndex,
         gameStarted: false,
+        deadTextures: [],
+
         coinsGen: new CoinsGenerator(map.mapsObjs[mapIndex].spawn, gameCode, sendCoins),
         lobbyTimer: new LobbyTimer(gameCode, sendLobbyTime, startGame),
         gameTimer: new GameTimer(gameCode, sendGameTime, stopGame)
@@ -299,7 +367,7 @@ function sendGameTime(gameCode, timeString) {
 
 function sendPlayersNumber(gameCode) {
     for (var playerSocket of rooms[gameCode].sockets) {
-        playerSocket.emit("players-number", rooms[gameCode].players.length);
+        playerSocket.emit("players-number-lobby", rooms[gameCode].players.length);
     }
 }
 

@@ -51,7 +51,8 @@ function joinGame(data) {
     gameCode = data.code;
 
     socket.on("send-data", function (data) {
-        otherPlayers = data;
+        otherPlayers = data.players;
+        deadTextures = data.deadTextures;
     });
     socket.on("send-begin-data", function(data) {
         tilesObjs = data.tiles;
@@ -76,11 +77,16 @@ function joinGame(data) {
         gameBoard.setString("role", ROLES_NAMES[ROLE_DEAD]);
         gameBoard.setColor("role", ROLES_COLORS[ROLE_DEAD]);
     });
-    socket.on("players-number", function(data) {
+    socket.on("defeat-detective", function() {
+    });
+    socket.on("players-number-lobby", function(data) {
         if(isAdmin) {
             getAdmin(data);
         }
         lobbyBoard.setString("players", data + "/" + _MAX_PLAYERS);
+    });
+    socket.on("players-number-game", function(data) {
+        gameBoard.setString("innocents", data);
     });
     socket.on("get-admin", function(data) {
         isAdmin = true;

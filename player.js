@@ -25,6 +25,7 @@ var skinIndex = 0; // Index skina gracza
 var skinsImages = []; // Obrazki postaci
 var ghostsImages = []; // Obrazki duchów
 var otherPlayers = []; // Tablica innych graczy
+var deadTextures = [];
 var shots = [];
 
 // Tablica kierunków
@@ -47,32 +48,38 @@ const allTheRightMoves = {
 
 // Funkcja renderująca graczy
 function renderPlayers() {
+    drawDeadTextures();
+    
     for (var player of otherPlayers) {
         if (player.playerCode == playerCode) continue;
-
-        if(player.dead) {
-            const DIE_TEX_X = 3 * PLAYER_SIZE;
-            const DIE_TEX_Y = 0 * PLAYER_SIZE;
-            
-            const DIE_OFFSET = 30;
-            var renderX = getX(player.dieX);
-            var renderY = getY(player.dieY) + DIE_OFFSET;
-
-            drawRotatedSubImage(skinsImages[player.skin], DIE_TEX_X, DIE_TEX_Y, PLAYER_SIZE, PLAYER_SIZE, renderX, renderY, PLAYER_SIZE, PLAYER_SIZE, getRadians(-90));
-            continue;
-        }
+        if(player.dead && !dead) continue;
 
         var xPos = getX(player.xPos);
         var yPos = getY(player.yPos);
         drawPlayer(xPos, yPos, player.skin, player.direction, player.movingIndex, player.shooting, player.shootingDirIndex, player.leftButton, player.charged, player.swordAttack, player.swordDirIndex, player.swordAttackStage, player.dead);
         
-        var textX = xPos + PLAYER_SIZE / 2;
-        var textY = yPos - 18;
-        drawNick(player.nick, textX, textY);
+        if(!gameStarted || dead) {
+            var textX = xPos + PLAYER_SIZE / 2;
+            var textY = yPos - 18;
+            drawNick(player.nick, textX, textY);
+        }
 
         for(var shot of player.shots) {
             drawShot(getX(shot.xPos), getY(shot.yPos), shot.angle);
         }
+    }
+}
+
+function drawDeadTextures() {
+    for(var texture of deadTextures) {
+        const DIE_TEX_X = 3 * PLAYER_SIZE;
+        const DIE_TEX_Y = 0 * PLAYER_SIZE;
+        
+        const DIE_OFFSET = 30;
+        var renderX = getX(texture.xPos);
+        var renderY = getY(texture.yPos) + DIE_OFFSET;
+
+        drawRotatedSubImage(skinsImages[texture.index], DIE_TEX_X, DIE_TEX_Y, PLAYER_SIZE, PLAYER_SIZE, renderX, renderY, PLAYER_SIZE, PLAYER_SIZE, getRadians(-90));
     }
 }
 
