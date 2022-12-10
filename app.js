@@ -113,14 +113,44 @@ function joinGame(data) {
 function loadImages() {
     // Ładowanie kafelków
     for (var obj of tilesObjs) {
-        tilesImages.push(createImage("tiles/" + obj.file));
+        tilesImages.push(new ImgAsset("tiles/" + obj.file, TILE_SIZE, TILE_SIZE));
+
         tilesSolid.push(obj.solid);
         tilesNames.push(obj.file.substring(0, obj.file.length - 4));
     }
+
+    const PLAYER_IMG_WIDTH = 4;
+    const PLAYER_IMG_HEIGHT = 5;
+
+    const GHOST_IMG_WIDTH = 4;
+    const GHOST_IMG_HEIGHT = 3;
+
+    const PLAYER_IMG_SIZE = 16;
+
     // Ładowanie tektur gracza
     for (var i = 0; i < _SKINS; i++) {
-        skinsImages[i] = createImage("players/player" + (i + 1) + ".png");
-        ghostsImages[i] = createImage("ghosts/player" + (i + 1) + ".png");
+        skinsImages[i] = [];
+        ghostsImages[i] = [];
+
+        const playerImage = createImage("players/player" + (i + 1) + ".png");
+        const ghostImage = createImage("ghosts/player" + (i + 1) + ".png");
+
+        for(let x = 0; x < PLAYER_IMG_WIDTH; x++) {
+            skinsImages[i][x] = [];
+            for(let y = 0; y < PLAYER_IMG_HEIGHT; y++) {
+                const sx = PLAYER_IMG_SIZE * x;
+                const sy = PLAYER_IMG_SIZE * y;
+                skinsImages[i][x][y] = new ImgAsset(playerImage, PLAYER_SIZE, PLAYER_SIZE, sx, sy, PLAYER_IMG_SIZE, PLAYER_IMG_SIZE);
+            }
+        }
+        for(let x = 0; x < GHOST_IMG_WIDTH; x++) {
+            ghostsImages[i][x] = [];
+            for(let y = 0; y < GHOST_IMG_HEIGHT; y++) {
+                const sx = PLAYER_IMG_SIZE * x;
+                const sy = PLAYER_IMG_SIZE * y;
+                ghostsImages[i][x][y] = new ImgAsset(ghostImage, PLAYER_SIZE, PLAYER_SIZE, sx, sy, PLAYER_IMG_SIZE, PLAYER_IMG_SIZE);
+            }
+        }
     }
 
     weaponTextures = {
@@ -194,39 +224,8 @@ function renderTiles() {
     for (var tile of tiles) {
         var tileX = getX(tile.xPos * TILE_SIZE);
         var tileY = getY(tile.yPos * TILE_SIZE);
-        ctx.drawImage(tilesImages[tile.type], tileX, tileY);
+        tilesImages[tile.type].draw(tileX, tileY);
     }
-}
-
-// Funkcja ładująca pojedynczy obrazek
-function createImage(path) {
-    var image = document.createElement("img");
-    image.src = "images/" + path;
-    return image;
-}
-
-function drawRotatedImage(image, x, y, width, height, angle) {
-    var translateX = x + width / 2;
-    var translateY = y + height / 2;
-
-    ctx.translate(translateX, translateY);
-    ctx.rotate(angle);
-    ctx.drawImage(image, -width / 2, -height / 2, width, height);
-
-    ctx.rotate(-angle);
-    ctx.translate(-translateX, -translateY);
-}
-
-function drawRotatedSubImage(image, xOffset, yOffset, swidth, sheight, x, y, width, height, angle) {
-    var translateX = x + width / 2;
-    var translateY = y + height / 2;
-
-    ctx.translate(translateX, translateY);
-    ctx.rotate(angle);
-    ctx.drawImage(image, xOffset, yOffset, swidth, sheight, -width / 2, -height / 2, width, height);
-
-    ctx.rotate(-angle);
-    ctx.translate(-translateX, -translateY);
 }
 
 function getTile(tileX, tileY) {
@@ -236,49 +235,6 @@ function getTile(tileX, tileY) {
         return condX && condY;
     });
     return tile;
-}
-
-class Anim {
-    constructor(image, x, y, width, height, frameTime) {
-        this.image = image;
-        
-        this.width = width;
-        this.height = height;
-        
-        this.xPos = x;
-        this.yPos = y;
-
-        this.frame = 0;
-        this.startTime = time;
-        this.frameTime = frameTime;
-        this.destroyed = false;
-        this.init();
-    }
-    
-    init() {
-        this.maxFrames = this.image.width / this.width;
-        this.index = anims.length;
-        anims.push(this);
-    }
-    destroy() {
-        anims.splice(this.index, 1);
-        this.destroyed = true;
-    }
-    update() {
-        if((time - this.startTime) % this.frameTime == 0 && !this.destroyed) {
-            this.frame++;
-            if(this.frame >= this.maxFrames) {
-                this.frame = 0;
-            }
-        }
-    }
-    render() {
-        if(this.destroyed) return;
-        
-        var renderX = getX(this.xPos);
-        var renderY = getY(this.yPos);
-        ctx.drawImage(this.image, this.frame * this.width, 0, this.width, this.height, renderX, renderY, this.width, this.height);
-    }
 }
 
 function getRadians(deg) {

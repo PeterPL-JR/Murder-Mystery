@@ -1,6 +1,7 @@
 const COIN_SIZE = 64;
 const COIN_FRAME_TIME = 9;
-const coinTex = createImage("coin.png");
+const COIN_MAX_FRAMES = 4;
+const coinImage = createImage("coin.png");
 
 var coins = 0;
 var mapCoins = [];
@@ -15,7 +16,7 @@ function addCoin(coinsArray, index) {
         xPos: animX,
         yPos: animY,
 
-        anim: new Anim(coinTex, animX, animY, COIN_SIZE, COIN_SIZE, COIN_FRAME_TIME),
+        anim: new Anim(coinImage, animX, animY, COIN_SIZE, COIN_SIZE, COIN_FRAME_TIME, COIN_MAX_FRAMES),
         hitbox: new Hitbox({
             rectangle: null,
             width: COIN_SIZE,

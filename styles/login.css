@@ -39,6 +39,10 @@ h2 span {
     height: 160px;
     overflow: hidden;
 }
+#skin-div img {
+    width: 640px;
+    image-rendering: pixelated;
+}
 #skin-choose-div {
     height: 160px;
     width: max-content;

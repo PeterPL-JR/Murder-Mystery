@@ -1,6 +1,7 @@
+const ARROW_SIZE = 96;
 const SHOT_SPEED = 35;
 const SHOT_DISTANCE = TILE_SIZE * 15;
-const arrowTex = createImage("arrow.png");
+const arrowTex = new ImgAsset("arrow.png", ARROW_SIZE, ARROW_SIZE);
 
 const FIRE_RATE = 5;
 var fireRateTime = FIRE_RATE;
@@ -164,7 +165,7 @@ function shoot(mouseX, mouseY) {
 }
 
 function drawShot(x, y, angle) {
-    drawRotatedImage(arrowTex, x, y, TILE_SIZE, TILE_SIZE, angle);
+    arrowTex.drawRotated(x, y, angle);
 }
 
 function renderShots() {

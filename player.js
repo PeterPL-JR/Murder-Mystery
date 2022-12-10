@@ -72,14 +72,14 @@ function renderPlayers() {
 
 function drawDeadTextures() {
     for(var texture of deadTextures) {
-        const DIE_TEX_X = 3 * PLAYER_SIZE;
-        const DIE_TEX_Y = 0 * PLAYER_SIZE;
+        const DIE_TEX_X = 3;
+        const DIE_TEX_Y = 0;
         
         const DIE_OFFSET = 30;
         var renderX = getX(texture.xPos);
         var renderY = getY(texture.yPos) + DIE_OFFSET;
 
-        drawRotatedSubImage(skinsImages[texture.index], DIE_TEX_X, DIE_TEX_Y, PLAYER_SIZE, PLAYER_SIZE, renderX, renderY, PLAYER_SIZE, PLAYER_SIZE, getRadians(-90));
+        skinsImages[texture.index][DIE_TEX_X][DIE_TEX_Y].drawRotated(renderX, renderY, getRadians(-90));
     }
 }
 
@@ -148,7 +148,8 @@ function drawPlayer(x, y, textureIndex, direction, movingIndex, shooting, shooti
         xOffset = attackTextures[index];
         yOffset = SWORD_TEX;
     }
-    ctx.drawImage(texture, xOffset * PLAYER_SIZE, yOffset * PLAYER_SIZE, PLAYER_SIZE, PLAYER_SIZE, x, y, PLAYER_SIZE, PLAYER_SIZE);
+
+    texture[xOffset][yOffset].draw(x, y);
 }
 
 // Funkcja renderująca nick gracza
