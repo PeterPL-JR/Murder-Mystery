@@ -85,9 +85,9 @@ function attack() {
         const playerPos = [player.xPos, player.yPos];
 
         if(player.playerCode == playerCode || player.dead) continue;
-        if(!Hitbox.isCollision(healthHitbox, healthHitbox, pos, playerPos)) continue;
+        if(!Hitbox.isCollision(hitbox.health, hitbox.health, pos, playerPos)) continue;
 
-        var sides = Hitbox.getSide(healthHitbox, healthHitbox, pos, playerPos);
+        var sides = Hitbox.getSide(hitbox.health, hitbox.health, pos, playerPos);
         delinquents.push({
             index: i,
             side: sides.horizontal
@@ -108,7 +108,7 @@ function attack() {
         var player = otherPlayers[obj.index];
         var playerPos = [player.xPos, player.yPos];
 
-        var pixels = Hitbox.commonPixels(healthHitbox, healthHitbox, pos, playerPos);
+        var pixels = Hitbox.commonPixels(hitbox.health, hitbox.health, pos, playerPos);
         if(pixels > playerPixels) {
             playerPixels = pixels;
             playerIndex = obj.index;
@@ -116,7 +116,7 @@ function attack() {
     }
 
     var player = otherPlayers[playerIndex];
-    swordDirIndex = Hitbox.getSide(healthHitbox, healthHitbox, [player.xPos, player.yPos], pos).horizontal;
+    swordDirIndex = Hitbox.getSide(hitbox.health, hitbox.health, [player.xPos, player.yPos], pos).horizontal;
     direction = swordDirIndex;
 
     var playerId = player.playerCode;

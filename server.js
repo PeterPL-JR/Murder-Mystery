@@ -15,6 +15,8 @@ exports._MAX_PLAYERS = _MAX_PLAYERS;
 // Eksportowanie modułów
 const functions = require("./server/functions");
 const map = require("./server/maps");
+const spawn = require("./server/spawn");
+
 const { CoinsGenerator } = require("./server/spawn");
 const { LobbyTimer, GameTimer } = require("./server/time");
 
@@ -28,6 +30,7 @@ app.use(express.static(
 ));
 map.initMaps();
 map.loadTiles();
+spawn.loadHitboxes();
 
 const ROLE_INNOCENT = 0;
 const ROLE_MURDERER = 1;
@@ -84,6 +87,7 @@ function connectPlayer(socket, data) {
     socket.emit("send-begin-data", {
         tiles: map.tiles,
         map: map.mapsObjs[rooms[gameCode].map],
+        hitboxes: spawn.hitboxes,
         isAdmin: admin
     });
 

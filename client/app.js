@@ -57,6 +57,7 @@ function joinGame(data) {
     socket.on("send-begin-data", function(data) {
         tilesObjs = data.tiles;
         initTiles(data.map.data); // Przygotuj kafelki
+        initHitboxes(data.hitboxes); // Przygotuj hitboxy
         spawnPositions = data.spawn;
 
         lobbyBoard.setString("map-name", data.map.name);

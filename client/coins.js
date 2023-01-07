@@ -66,7 +66,7 @@ function checkCoinCollision(playerX, playerY) {
     var index = mapCoins.findIndex(function(coin) {
         if(coin == null) return false;
         return Hitbox.isCollision(
-            coinsHitbox,
+            hitbox.coins,
             coin.hitbox,
 
             [playerX, playerY],

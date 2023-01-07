@@ -4,10 +4,7 @@ const LEFT = 1;
 const DOWN = 2; 
 const UP = 3; 
 
-var hitbox;
-
-var healthHitbox;
-var coinsHitbox;
+const hitbox = {};
 
 class Hitbox {
     constructor(hitboxData) {
@@ -77,35 +74,14 @@ class Hitbox {
     }
 }
 
-function initHitboxes() {
-    hitbox = new Hitbox({
-        rectangle: {
-            left: 60,
-            right: 60,
-            top: 90,
-            bottom: 25,
-        },
-        width: PLAYER_SIZE,
-        height: PLAYER_SIZE
-    });
-    healthHitbox = new Hitbox({
-        rectangle: {
-            left: 40,
-            right: 40,
-            top: 10,
-            bottom: 10,
-        },
-        width: PLAYER_SIZE,
-        height: PLAYER_SIZE
-    });
-    coinsHitbox = new Hitbox({
-        rectangle: {
-            left: 40,
-            right: 40,
-            top: 80,
-            bottom: 20,
-        },
-        width: PLAYER_SIZE,
-        height: PLAYER_SIZE
-    });
+function initHitboxes(data) {
+    for(let hitboxName in data) {
+        const keyName = hitboxName.substring(0, hitboxName.length - 6);
+        const hitboxData = data[hitboxName];
+
+        hitboxData.width = eval(hitboxData.width);
+        hitboxData.height = eval(hitboxData.height);
+
+        hitbox[keyName] = new Hitbox(hitboxData);
+    }
 }

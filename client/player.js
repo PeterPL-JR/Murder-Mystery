@@ -171,13 +171,13 @@ function isCollision(playerX, playerY, moveX, moveY, direction) {
     var xPos = playerX + moveX;
     var yPos = playerY + moveY;
 
-    if(direction == RIGHT || direction == LEFT) yPos += hitbox.top + hitbox.height / 2;
-    if(direction == DOWN || direction == UP) xPos += hitbox.left + hitbox.width / 2;
+    if(direction == RIGHT || direction == LEFT) yPos += hitbox.player.top + hitbox.player.height / 2;
+    if(direction == DOWN || direction == UP) xPos += hitbox.player.left + hitbox.player.width / 2;
 
-    if(direction == RIGHT) xPos += hitbox.right;
-    if(direction == LEFT) xPos += hitbox.left;
-    if(direction == DOWN) yPos += hitbox.bottom;
-    if(direction == UP) yPos += hitbox.top;
+    if(direction == RIGHT) xPos += hitbox.player.right;
+    if(direction == LEFT) xPos += hitbox.player.left;
+    if(direction == DOWN) yPos += hitbox.player.bottom;
+    if(direction == UP) yPos += hitbox.player.top;
 
     var tile = getTile(xPos, yPos);
     return tilesSolid[tile.type];

@@ -1,6 +1,8 @@
+const fs = require("fs");
 const { _MAX_PLAYERS } = require("../server");
 const {getRandom} = require("./functions");
 
+const HITBOXES_PATH = "resources/hitboxes.json";
 const _COINS = _MAX_PLAYERS;
 
 class CoinsGenerator {
@@ -50,3 +52,8 @@ class CoinsGenerator {
     }
 }
 exports.CoinsGenerator = CoinsGenerator;
+
+exports.loadHitboxes = function() {
+    const fileData = fs.readFileSync(HITBOXES_PATH);
+    exports.hitboxes = JSON.parse(fileData);
+}

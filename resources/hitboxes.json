@@ -1,0 +1,32 @@
+{
+    "playerHitbox": {
+        "rectangle": {
+            "left": 60,
+            "right": 60,
+            "top": 90,
+            "bottom": 25
+        },
+        "width": "PLAYER_SIZE",
+        "height": "PLAYER_SIZE"
+    },
+    "healthHitbox": {
+        "rectangle": {
+            "left": 40,
+            "right": 40,
+            "top": 10,
+            "bottom": 10
+        },
+        "width": "PLAYER_SIZE",
+        "height": "PLAYER_SIZE"
+    },
+    "coinsHitbox": {
+        "rectangle": {
+            "left": 40,
+            "right":40,
+            "top": 80,
+            "bottom": 20
+        },
+        "width": "PLAYER_SIZE",
+        "height": "PLAYER_SIZE"
+    }
+}
