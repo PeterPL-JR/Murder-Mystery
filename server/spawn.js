@@ -1,4 +1,4 @@
-const { _MAX_PLAYERS } = require("./server");
+const { _MAX_PLAYERS } = require("../server");
 const {getRandom} = require("./functions");
 
 const _COINS = _MAX_PLAYERS;

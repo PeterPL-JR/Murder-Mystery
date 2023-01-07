@@ -27,7 +27,7 @@ function initMap(index) {
     var mapFileName = mapsFilesNames[index];
     var mapName = mapsNames[index];
     
-    files.readFile("maps/map_" + mapFileName + ".json", "utf-8", function(error, data) {
+    files.readFile("resources/maps/map_" + mapFileName + ".json", "utf-8", function(error, data) {
         var obj = JSON.parse(data);
         var tiles = obj.tiles;
         var spawn = obj.spawn;
@@ -43,7 +43,7 @@ function initMap(index) {
 
 // Funkcja ładująca kafelki z pliku JSON
 exports.loadTiles = function() {
-    files.readFile("tiles.json", "utf-8", function(error, data) {
+    files.readFile("resources/tiles.json", "utf-8", function(error, data) {
         var array = JSON.parse(data);
         tiles = array;
         exports.tiles = tiles;

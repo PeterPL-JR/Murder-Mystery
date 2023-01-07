@@ -13,10 +13,10 @@ const _MAX_PLAYERS = 12;
 exports._MAX_PLAYERS = _MAX_PLAYERS;
 
 // Eksportowanie modułów
-const functions = require("./functions");
-const map = require("./maps");
-const { CoinsGenerator } = require("./spawn");
-const { LobbyTimer, GameTimer } = require("./time");
+const functions = require("./server/functions");
+const map = require("./server/maps");
+const { CoinsGenerator } = require("./server/spawn");
+const { LobbyTimer, GameTimer } = require("./server/time");
 
 // Zmienne 
 const PORT = 4000; // Port
@@ -24,7 +24,7 @@ const rooms = {}; // Pokoje
 
 // Tworzenie aplikacji
 app.use(express.static(
-    path.join(__dirname, "/")
+    path.join(__dirname, "/client")
 ));
 map.initMaps();
 map.loadTiles();
