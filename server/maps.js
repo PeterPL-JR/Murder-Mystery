@@ -1,4 +1,4 @@
-const files = require("fs");
+const fs = require("fs");
 
 const mapsObjs = []; // Mapy
 var tiles = []; // // Obiekty kafelków
@@ -6,46 +6,38 @@ var tiles = []; // // Obiekty kafelków
 const MAPS = 4;
 exports.MAPS = MAPS;
 
-// Nazwy map
-const mapsNames = [
-    "Tawerna", "Zamek", "Egipt", "Wyspy"
-];
-// Nazwy plików map
-const mapsFilesNames = [
-    "tavern", "castle", "eqypt", "islands"
-];
+const MAPS_PATH = "resources/maps";
+const TILES_PATH = "resources/tiles.json";
 
 // Funkcja ładująca wszystkie mapy
 exports.initMaps = function() {
-    for(var i = 0; i < MAPS; i++) {
-        initMap(i);
+    const filesNames = fs.readdirSync(MAPS_PATH);
+    for(let fileName of filesNames) {
+        initMap(fileName);
     }
 }
 
 // Funkcja tworząca pojedynczą mapę z pliku JSON
-function initMap(index) {
-    var mapFileName = mapsFilesNames[index];
-    var mapName = mapsNames[index];
-    
-    files.readFile("resources/maps/map_" + mapFileName + ".json", "utf-8", function(error, data) {
-        var obj = JSON.parse(data);
-        var tiles = obj.tiles;
-        var spawn = obj.spawn;
+function initMap(fileName) {
+    const fileData = fs.readFileSync(MAPS_PATH + "/" + fileName);
+    const obj = JSON.parse(fileData);
 
-        mapsObjs.push({
-            name: mapName,
-            data: tiles,
-            spawn: spawn
-        });
+    const mapName = obj.mapName;
+    const tiles = obj.tiles;
+    const spawn = obj.spawn;
+
+    mapsObjs.push({
+        name: mapName,
+        data: tiles,
+        spawn: spawn
     });
     exports.mapsObjs = mapsObjs;
 }
 
 // Funkcja ładująca kafelki z pliku JSON
 exports.loadTiles = function() {
-    files.readFile("resources/tiles.json", "utf-8", function(error, data) {
-        var array = JSON.parse(data);
-        tiles = array;
-        exports.tiles = tiles;
-    });
+    const fileData = fs.readFileSync(TILES_PATH);
+    const array = JSON.parse(fileData);
+    tiles = array;
+    exports.tiles = tiles;
 }
