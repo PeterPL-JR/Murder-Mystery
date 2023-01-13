@@ -2,82 +2,94 @@ const PLAYER_SIZE = 160; // Wielkość obrazku gracza
 const SPEED = 9; // Szybkość gracza
 const TEX_SPEED = SPEED * 4; // Szybkość zmiany tekstury chodzenia
 
-// Położenie x, y gracza na mapie
-var playerX = MAP_SIZE * TILE_SIZE / 2 - PLAYER_SIZE / 2 - TILE_SIZE / 2;
-var playerY = MAP_SIZE * TILE_SIZE / 2 - PLAYER_SIZE / 2 + TILE_SIZE / 2;
+// Położenie początkowe x, y gracza na mapie
+const PLAYER_BEGIN_X = MAP_SIZE * TILE_SIZE / 2 - PLAYER_SIZE / 2 - TILE_SIZE / 2;
+const PLAYER_BEGIN_Y= MAP_SIZE * TILE_SIZE / 2 - PLAYER_SIZE / 2 + TILE_SIZE / 2;
 
 // Położenie x, y gracza na obiekcie <canvas>
 const X_OFFSET = WIDTH / 2 - PLAYER_SIZE / 2;
 const Y_OFFSET = HEIGHT / 2 - PLAYER_SIZE / 2;
 
-// Ruch gracza
-var direction = 0;
-var moving = false;
-var dead = false;
-var role;
+const PLAYER = {
+    x: PLAYER_BEGIN_X,
+    y: PLAYER_BEGIN_Y,
 
-var movingTime = 0;
-var movingIndex = -1;
+    skinIndex: 0,
+    dead: false,
+    direction: 0,
+
+    movingIndex: -1,
+    movingTime: 0,
+    moving: false,
+};
 
 const _SKINS = 13; // Ilość postaci
-var skinIndex = 0; // Index skina gracza
 
-var skinsImages = []; // Obrazki postaci
-var ghostsImages = []; // Obrazki duchów
-var otherPlayers = []; // Tablica innych graczy
-var deadTextures = [];
-var shots = [];
+let skinsImages = []; // Obrazki postaci
+let ghostsImages = []; // Obrazki duchów
+let otherPlayers = []; // Tablica innych graczy
+let deadTextures = [];
+
+const RIGHT = 0;
+const LEFT = 1;
+const DOWN = 2;
+const UP = 3;
 
 // Tablica kierunków
-const dirs = [
-    "right", "left", "down", "up"
-];
+const dirs = [];
+dirs[RIGHT] = "right";
+dirs[LEFT] = "left";
+dirs[DOWN] = "down";
+dirs[UP] = "up";
 
 // Klawisze poruszania się
-const movingKeys = [
-    "D", "A", "S", "W"
-];
+const movingKeys = [];
+movingKeys[RIGHT] = "D";
+movingKeys[LEFT] = "A";
+movingKeys[DOWN] = "S";
+movingKeys[UP] = "W";
 
 // Klawisze i kierunki poruszania
-const allTheRightMoves = {
-    W: [0, -1],
-    S: [0, 1],
-    A: [-1, 0],
-    D: [1, 0]
-};
+const allTheRightMoves = {};
+allTheRightMoves[movingKeys[RIGHT]] = [1, 0];
+allTheRightMoves[movingKeys[LEFT]] = [-1, 0];
+allTheRightMoves[movingKeys[DOWN]] = [0, 1];
+allTheRightMoves[movingKeys[UP]] = [0, -1];
 
 // Funkcja renderująca graczy
 function renderPlayers() {
     drawDeadTextures();
     
-    for (var player of otherPlayers) {
-        if (player.playerCode == playerCode) continue;
-        if(player.dead && !dead) continue;
+    for (let playerData of otherPlayers) {
+        const player = playerData.player;
 
-        var xPos = getX(player.xPos);
-        var yPos = getY(player.yPos);
-        drawPlayer(xPos, yPos, player.skin, player.direction, player.movingIndex, player.shooting, player.shootingDirIndex, player.leftButton, player.charged, player.swordAttack, player.swordDirIndex, player.swordAttackStage, player.dead);
+        if (player.playerCode == PLAYER.playerCode) continue;
+        if(player.dead && !PLAYER.dead) continue;
+
+        let xPos = getX(player.x);
+        let yPos = getY(player.y);
+        drawPlayer(xPos, yPos, player, playerData.bow, playerData.sword);
         
-        if(!gameStarted || dead) {
-            var textX = xPos + PLAYER_SIZE / 2;
-            var textY = yPos - 18;
+        if(!gameStarted || PLAYER.dead) {
+            let textX = xPos + PLAYER_SIZE / 2;
+            let textY = yPos - 18;
             drawNick(player.nick, textX, textY);
         }
 
-        for(var shot of player.shots) {
+        for(let shot of playerData.bow.shots) {
             drawShot(getX(shot.xPos), getY(shot.yPos), shot.angle);
         }
     }
 }
 
 function drawDeadTextures() {
-    for(var texture of deadTextures) {
+    for(let texture of deadTextures) {
         const DIE_TEX_X = 3;
         const DIE_TEX_Y = 0;
         
         const DIE_OFFSET = 30;
-        var renderX = getX(texture.xPos);
-        var renderY = getY(texture.yPos) + DIE_OFFSET;
+        let renderX = getX(texture.xPos);
+        let renderY = getY(texture.yPos) + DIE_OFFSET;
 
         skinsImages[texture.index][DIE_TEX_X][DIE_TEX_Y].drawRotated(renderX, renderY, getRadians(-90));
     }
@@ -85,65 +97,58 @@ function drawDeadTextures() {
 
 // Funkcja wysyłająca do serwera dane gracza
 function send() {
-    socket.emit("update-player", {
-        xPos: playerX,
-        yPos: playerY,
-        playerCode, direction,
-        moving, movingIndex,
-
-        shooting, shootingDirIndex,
-        leftButton, charged,
-        gameCode, shots,
-        
-        swordAttack, swordAttackStage,
-        swordDirIndex
-    });
+    const object = {
+        player: PLAYER,
+        bow: BOW,
+        sword: SWORD
+    }; 
+    socket.emit("update-player", object);
 }
 
 // Funkcja poruszająca gracza w zależności od naciśniętego klawisza
 function playerMoving() {
-    for (var keyOfObj in keys) {
-        var playerMove = allTheRightMoves[keyOfObj];
+    for (let keyOfObj in keys) {
+        let playerMove = allTheRightMoves[keyOfObj];
 
         // Poruszaj, gry klawisz jest naciśnięty oraz jest to W,S,D lub D
         if (keys[keyOfObj] && playerMove) {
             // Poruszaj gracza
-            var moveX = playerMove[0];
-            var moveY = playerMove[1];
-            direction = movingKeys.indexOf(keyOfObj);
+            let moveX = playerMove[0];
+            let moveY = playerMove[1];
+            PLAYER.direction = movingKeys.indexOf(keyOfObj);
 
-            if(!isCollision(playerX, playerY, moveX, moveY, direction) || dead) {
+            if(!isCollision(PLAYER.x, PLAYER.y, moveX, moveY, PLAYER.direction) || PLAYER.dead) {
                 move(moveX, moveY);
             }
-            send();
         }
     }
-    if (moving) {
-        movingTime++;
-        movingIndex = (movingTime % TEX_SPEED < TEX_SPEED / 2) ? 0 : 1;
+    if (PLAYER.moving) {
+        PLAYER.movingTime++;
+        PLAYER.movingIndex = (PLAYER.movingTime % TEX_SPEED < TEX_SPEED / 2) ? 0 : 1;
     }
+    send();
 }
 
 // Funkcja renderująca dowolnego gracza na mapie
-function drawPlayer(x, y, textureIndex, direction, movingIndex, shooting, shootingIndex, leftButton, charged, swordAttack, swordDirIndex, swordAttackStage, dead) {
-    var texture = (dead ? ghostsImages : skinsImages)[textureIndex];
-    var xOffset = direction;
-    var yOffset = movingIndex + 1;
+function drawPlayer(x, y, player, bowObject, swordObject) {
+    let texture = (player.dead ? ghostsImages : skinsImages)[player.skinIndex];
+    let xOffset = player.direction;
+    let yOffset = player.movingIndex + 1;
 
     const BOW_TEX = 3;
     const SWORD_TEX = 4;
 
-    if(shooting) {
-        var shootingTextures = weaponTextures[shootingIndex == LEFT ? "left" : "right"];
-        var index = leftButton ? WEAPON_ACTIVE : WEAPON_DEFAULT;
-        if(!charged) index = WEAPON_DEFAULT;
+    if(bowObject.shooting) {
+        let shootingTextures = weaponTextures[bowObject.shootingDirIndex == LEFT ? "left" : "right"];
+        let index = bowObject.leftButton ? WEAPON_ACTIVE : WEAPON_DEFAULT;
+        if(!bowObject.charged) index = WEAPON_DEFAULT;
 
         xOffset = shootingTextures[index];
         yOffset = BOW_TEX;
     }
-    if(swordAttack) {
-        var attackTextures = weaponTextures[swordDirIndex == LEFT ? "left" : "right"];
-        var index = swordAttackStage ? WEAPON_DEFAULT : WEAPON_ACTIVE;
+    if(swordObject.swordAttack) {
+        let attackTextures = weaponTextures[swordObject.swordDirIndex == LEFT ? "left" : "right"];
+        let index = swordObject.swordAttackStage ? WEAPON_DEFAULT : WEAPON_ACTIVE;
 
         xOffset = attackTextures[index];
         yOffset = SWORD_TEX;
@@ -162,14 +167,14 @@ function drawNick(nick, x, y) {
 
 // Funkcja poruszania się
 function move(x, y) {
-    playerX += x * SPEED;
-    playerY += y * SPEED;
-    moving = true;
+    PLAYER.x += x * SPEED;
+    PLAYER.y += y * SPEED;
+    PLAYER.moving = true;
 }
 
 function isCollision(playerX, playerY, moveX, moveY, direction) {
-    var xPos = playerX + moveX;
-    var yPos = playerY + moveY;
+    let xPos = playerX + moveX;
+    let yPos = playerY + moveY;
 
     if(direction == RIGHT || direction == LEFT) yPos += hitbox.player.top + hitbox.player.height / 2;
     if(direction == DOWN || direction == UP) xPos += hitbox.player.left + hitbox.player.width / 2;
@@ -179,13 +184,13 @@ function isCollision(playerX, playerY, moveX, moveY, direction) {
     if(direction == DOWN) yPos += hitbox.player.bottom;
     if(direction == UP) yPos += hitbox.player.top;
 
-    var tile = getTile(xPos, yPos);
+    let tile = getTile(xPos, yPos);
     return tilesSolid[tile.type];
 }
 
 function getX(mapX) {
-    return mapX - playerX + X_OFFSET;
+    return mapX - PLAYER.x + X_OFFSET;
 }
 function getY(mapY) {
-    return mapY - playerY + Y_OFFSET;
+    return mapY - PLAYER.y + Y_OFFSET;
 }

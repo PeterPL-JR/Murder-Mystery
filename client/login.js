@@ -1,15 +1,15 @@
-var choosenSkin = 0; // Aktualnie wybrany skin
+let choosenSkin = 0; // Aktualnie wybrany skin
 
-var button = document.getElementById("button"); // Przycisk dołączający do gry
-var textureDiv = document.getElementById("skin-div"); // Div wyboru skina
-var infoDiv = document.getElementById("info");
+let button = document.getElementById("button"); // Przycisk dołączający do gry
+let textureDiv = document.getElementById("skin-div"); // Div wyboru skina
+let infoDiv = document.getElementById("info");
 
 const codeInput = document.getElementById("code");
 const nickInput = document.getElementById("nick");
 
 // Strzałki
-var arrow1 = document.getElementById("arrow1");
-var arrow2 = document.getElementById("arrow2");
+let arrow1 = document.getElementById("arrow1");
+let arrow2 = document.getElementById("arrow2");
 
 // Kod dziejący się po kliknięciu strzałek
 arrow1.onmousedown = function() {
@@ -21,13 +21,13 @@ arrow2.onmousedown = function() {
 
 // Kod dziejący się po kliknięciu przycisku
 button.onclick = function () {
-    var code = codeInput.value;
-    var nick = nickInput.value;
-    var playerCode = getRandom(1_000_000_000_000_000, 9_999_999_999_999_999);
+    let code = codeInput.value;
+    let nick = nickInput.value;
+    let playerCode = getRandom(1_000_000_000_000_000, 9_999_999_999_999_999);
 
     // Dołącz, jeżeli nick nie jest pusty i kod gry jest liczbą
     if (!isNaN(code) && nick != "") {
-        var socket = io();
+        let socket = io();
         socket.emit("check-room", {code});
         socket.on("check-room", function(data) {
 

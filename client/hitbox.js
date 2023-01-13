@@ -1,9 +1,3 @@
-const RIGHT = 0; 
-const LEFT = 1;
-
-const DOWN = 2; 
-const UP = 3; 
-
 const hitbox = {};
 
 class Hitbox {
@@ -43,8 +37,8 @@ class Hitbox {
 
     static getSide(h1, h2, pos1, pos2) {
 
-        var hSide = h1.left + pos1[0] < h2.left + pos2[0] ? LEFT : RIGHT;
-        var vSide = h1.top + pos1[1] < h2.top + pos2[1] ? UP : DOWN;
+        let hSide = h1.left + pos1[0] < h2.left + pos2[0] ? LEFT : RIGHT;
+        let vSide = h1.top + pos1[1] < h2.top + pos2[1] ? UP : DOWN;
 
         return {
             horizontal: hSide,
@@ -55,17 +49,17 @@ class Hitbox {
     static commonPixels(h1, h2, pos1, pos2) {
         const sides = ["right", "left", "bottom", "top"];
 
-        var side1 = Hitbox.getSide(h1, h2, pos1, pos2);
-        var side2 = Hitbox.getSide(h2, h1, pos2, pos1);
+        let side1 = Hitbox.getSide(h1, h2, pos1, pos2);
+        let side2 = Hitbox.getSide(h2, h1, pos2, pos1);
 
-        var hWay1 = h1[sides[side1.horizontal]] - pos1[0];
-        var hWay2 = h2[sides[side2.horizontal]] - pos2[0];
+        let hWay1 = h1[sides[side1.horizontal]] - pos1[0];
+        let hWay2 = h2[sides[side2.horizontal]] - pos2[0];
 
-        var vWay1 = h1[sides[side1.vertical]] - pos1[1];
-        var vWay2 = h2[sides[side2.vertical]] - pos2[1];
+        let vWay1 = h1[sides[side1.vertical]] - pos1[1];
+        let vWay2 = h2[sides[side2.vertical]] - pos2[1];
 
-        var horizontal = Math.abs(hWay1 - hWay2);
-        var vertical = Math.abs(vWay1 - vWay2);
+        let horizontal = Math.abs(hWay1 - hWay2);
+        let vertical = Math.abs(vWay1 - vWay2);
 
         if(horizontal == 0) horizontal = h1.width;
         if(vertical == 0) vertical = h1.height;

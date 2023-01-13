@@ -15,7 +15,7 @@ function initAdminButton() {
         button.innerHTML = "Rozpocznij";
         
         button.onclick = function() {
-            socket.emit("start-game", {gameCode});
+            socket.emit("start-game", {gameCode: PLAYER.gameCode});
         }
         const buttonDiv = document.getElementById("button-div");
         if(buttonDiv) {
@@ -33,12 +33,12 @@ function startGame(data) {
     gameStarted = true;
     createMapCoins(data.coins);
 
-	role = data.role;
-    gameBoard.setString("role", ROLES_NAMES[role]);
-    gameBoard.setColor("role", ROLES_COLORS[role]);
+	PLAYER.role = data.role;
+    gameBoard.setString("role", ROLES_NAMES[PLAYER.role]);
+    gameBoard.setColor("role", ROLES_COLORS[PLAYER.role]);
 
-    playerX = data.xPos * TILE_SIZE - PLAYER_SIZE / 2 + TILE_SIZE / 2;
-    playerY = data.yPos * TILE_SIZE - PLAYER_SIZE / 2 + TILE_SIZE / 2;
+    PLAYER.x = data.xPos * TILE_SIZE - PLAYER_SIZE / 2 + TILE_SIZE / 2;
+    PLAYER.y = data.yPos * TILE_SIZE - PLAYER_SIZE / 2 + TILE_SIZE / 2;
     send();
     
     lobbyBoard.div.remove();

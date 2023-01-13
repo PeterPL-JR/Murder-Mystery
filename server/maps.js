@@ -1,7 +1,8 @@
 const fs = require("fs");
+const {getRandom} = require("./functions");
 
 const mapsObjs = []; // Mapy
-var tiles = []; // // Obiekty kafelków
+let tiles = []; // // Obiekty kafelków
 
 const MAPS = 4;
 exports.MAPS = MAPS;
@@ -40,4 +41,20 @@ exports.loadTiles = function() {
     const array = JSON.parse(fileData);
     tiles = array;
     exports.tiles = tiles;
+}
+
+exports.createRandPositions = function(room) {
+    const mapObj = mapsObjs[room.map];
+    const spawnPositions = Array.from(mapObj.spawn);
+    const randPositions = [];
+
+    for (let i = 0; i < room.players.length; i++) {
+        const randPos = getRandom(0, spawnPositions.length - 1);
+        const randX = spawnPositions[randPos][0];
+        const randY = spawnPositions[randPos][1];
+
+        randPositions[i] = { randX, randY };
+        spawnPositions.splice(randPos, 1);
+    }
+    return randPositions;
 }

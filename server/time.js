@@ -61,7 +61,8 @@ class Timer {
     }
     invoke() {
         if(this.fun && this.fun != null) {
-            this.fun(this.gameCode, this.string);
+            const {rooms} = require("../server");
+            this.fun(rooms[this.gameCode], this.string);
         }
     }
     suspend() {
@@ -73,8 +74,8 @@ class Timer {
 }
 
 class LobbyTimer extends Timer {
-    constructor(gameCode, fun, stopFun) {
-        super(LOBBY_MINUTES, LOBBY_SECONDS, gameCode, fun, stopFun);
+    constructor(gameCode, stopFun) {
+        super(LOBBY_MINUTES, LOBBY_SECONDS, gameCode, sendLobbyTime, stopFun);
     }
     changePlayers(players) {
         if(players < 4) {
@@ -105,8 +106,19 @@ class LobbyTimer extends Timer {
     }
 }
 class GameTimer extends Timer {
-    constructor(gameCode, fun, stopFun) {
-        super(GAME_MINUTES, GAME_SECONDS, gameCode, fun, stopFun);
+    constructor(gameCode, stopFun) {
+        super(GAME_MINUTES, GAME_SECONDS, gameCode, sendGameTime, stopFun);
+    }
+}
+
+function sendLobbyTime(room, timeString) {
+    for (let socket of room.sockets) {
+        socket.emit("lobby-time", { timeString });
+    }
+}
+function sendGameTime(room, timeString) {
+    for (let socket of room.sockets) {
+        socket.emit("game-time", { timeString });
     }
 }
 

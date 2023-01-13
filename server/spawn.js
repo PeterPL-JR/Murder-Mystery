@@ -19,11 +19,11 @@ class CoinsGenerator {
     }
 
     initSpawn() {
-        for(var i = 0; i < _COINS; i++) {
+        for(let i = 0; i < _COINS; i++) {
             this.mapCoins[i] = null;
         }
         
-        var trySpawn = this.trySpawn.bind(this);
+        let trySpawn = this.trySpawn.bind(this);
         this.interval = setInterval(function() {
             trySpawn();
         }, 1000);
@@ -33,8 +33,8 @@ class CoinsGenerator {
     }
 
     spawnCoin(index) {
-        var spawnX = this.spawnPositions[index][0];
-        var spawnY = this.spawnPositions[index][1];
+        let spawnX = this.spawnPositions[index][0];
+        let spawnY = this.spawnPositions[index][1];
         this.mapCoins[index] = {
             xPos: spawnX,
             yPos: spawnY
@@ -45,7 +45,7 @@ class CoinsGenerator {
         this.mapCoins[index] = null;
     }
     trySpawn() {
-        var index = getRandom(0, _COINS - 1);
+        let index = getRandom(0, _COINS - 1);
         if(this.mapCoins[index] == null) {
             this.spawnCoin(index);
         }
@@ -53,7 +53,26 @@ class CoinsGenerator {
 }
 exports.CoinsGenerator = CoinsGenerator;
 
+function sendCoins(mapCoins, gameCode) {
+    const {rooms} = require("../server");
+    let socketsArray = rooms[gameCode].sockets;
+    for (let socket of socketsArray) {
+        socket.emit("update-coins", { mapCoins });
+    }
+}
+function deleteCoin(data) {
+    const {rooms} = require("../server");
+    let gameCode = data.gameCode;
+    let gen = rooms[gameCode].coinsGen;
+
+    gen.destroyCoin(data.coinIndex);
+    sendCoins(gen.mapCoins, gameCode);
+}
+
 exports.loadHitboxes = function() {
     const fileData = fs.readFileSync(HITBOXES_PATH);
     exports.hitboxes = JSON.parse(fileData);
 }
+
+exports.sendCoins = sendCoins;
+exports.deleteCoin = deleteCoin;

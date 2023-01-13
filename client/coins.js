@@ -3,15 +3,15 @@ const COIN_FRAME_TIME = 9;
 const COIN_MAX_FRAMES = 4;
 const coinImage = createImage("coin.png");
 
-var coins = 0;
-var mapCoins = [];
+let coins = 0;
+let mapCoins = [];
 
-var BOW_PRICE = 10;
-var ARROWS_PRICE = 10;
+let BOW_PRICE = 10;
+let ARROWS_PRICE = 10;
 
 function addCoin(coinsArray, index) {
-    var animX = coinsArray[index].xPos * TILE_SIZE + TILE_SIZE / 2 - COIN_SIZE / 2;
-    var animY = coinsArray[index].yPos * TILE_SIZE + TILE_SIZE / 2 - COIN_SIZE / 2;
+    let animX = coinsArray[index].xPos * TILE_SIZE + TILE_SIZE / 2 - COIN_SIZE / 2;
+    let animY = coinsArray[index].yPos * TILE_SIZE + TILE_SIZE / 2 - COIN_SIZE / 2;
     mapCoins[index] = {
         xPos: animX,
         yPos: animY,
@@ -31,12 +31,12 @@ function deleteCoin(index) {
 
 function createMapCoins(array) {
     if(mapCoins.length == 0) {
-        for(var i = 0; i < array.length; i++) {
+        for(let i = 0; i < array.length; i++) {
             if(array[i] != null) addCoin(array, i);
             else mapCoins[i] = null;
         }
     }
-    for(var i = 0; i < array.length; i++) {
+    for(let i = 0; i < array.length; i++) {
         if(mapCoins[i] != null && array[i] == null) deleteCoin(i);
         else if(mapCoins[i] == null && array[i] != null) addCoin(array, i);
     }
@@ -44,15 +44,15 @@ function createMapCoins(array) {
 
 function pickCoin(index) {
     coins++;
-    socket.emit("update-coins", {gameCode, coinIndex: index});
+    socket.emit("update-coins", {gameCode: PLAYER.gameCode, coinIndex: index});
     deleteCoin(index);
     
-    if(!bow && coins >= BOW_PRICE) {
-        bow = true;
+    if(!isBow && coins >= BOW_PRICE) {
+        isBow = true;
         arrows++;
         coins = 0;
     }
-    if(bow && coins >= ARROWS_PRICE) {
+    if(isBow && coins >= ARROWS_PRICE) {
         arrows++;
         coins = 0;
     }
@@ -63,7 +63,7 @@ function pickCoin(index) {
 
 function checkCoinCollision(playerX, playerY) {
 
-    var index = mapCoins.findIndex(function(coin) {
+    let index = mapCoins.findIndex(function(coin) {
         if(coin == null) return false;
         return Hitbox.isCollision(
             hitbox.coins,

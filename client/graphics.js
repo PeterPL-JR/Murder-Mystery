@@ -96,15 +96,65 @@ class Anim {
     render() {
         if(this.destroyed) return;
         
-        var renderX = getX(this.xPos);
-        var renderY = getY(this.yPos);
+        let renderX = getX(this.xPos);
+        let renderY = getY(this.yPos);
         this.framesImages[this.frame].draw(renderX, renderY);
     }
 }
 
+// Funkcja ładowania obrazków
+function loadImages() {
+    // Ładowanie kafelków
+    for (let obj of tilesObjs) {
+        tilesImages.push(new ImgAsset("tiles/" + obj.file, TILE_SIZE, TILE_SIZE));
+
+        tilesSolid.push(obj.solid);
+        tilesNames.push(obj.file.substring(0, obj.file.length - 4));
+    }
+
+    const PLAYER_IMG_WIDTH = 4;
+    const PLAYER_IMG_HEIGHT = 5;
+
+    const GHOST_IMG_WIDTH = 4;
+    const GHOST_IMG_HEIGHT = 3;
+
+    const PLAYER_IMG_SIZE = 16;
+
+    // Ładowanie tektur gracza
+    for (let i = 0; i < _SKINS; i++) {
+        skinsImages[i] = [];
+        ghostsImages[i] = [];
+
+        const playerImage = createImage("players/player" + (i + 1) + ".png");
+        const ghostImage = createImage("ghosts/player" + (i + 1) + ".png");
+
+        for(let x = 0; x < PLAYER_IMG_WIDTH; x++) {
+            skinsImages[i][x] = [];
+            for(let y = 0; y < PLAYER_IMG_HEIGHT; y++) {
+                const sx = PLAYER_IMG_SIZE * x;
+                const sy = PLAYER_IMG_SIZE * y;
+                skinsImages[i][x][y] = new ImgAsset(playerImage, PLAYER_SIZE, PLAYER_SIZE, sx, sy, PLAYER_IMG_SIZE, PLAYER_IMG_SIZE);
+            }
+        }
+        for(let x = 0; x < GHOST_IMG_WIDTH; x++) {
+            ghostsImages[i][x] = [];
+            for(let y = 0; y < GHOST_IMG_HEIGHT; y++) {
+                const sx = PLAYER_IMG_SIZE * x;
+                const sy = PLAYER_IMG_SIZE * y;
+                ghostsImages[i][x][y] = new ImgAsset(ghostImage, PLAYER_SIZE, PLAYER_SIZE, sx, sy, PLAYER_IMG_SIZE, PLAYER_IMG_SIZE);
+            }
+        }
+    }
+
+    weaponTextures = {
+        left: [1, 0],
+        right: [3, 2]
+    };
+}
+
 // Funkcja ładująca pojedynczy obrazek
 function createImage(path) {
-    var image = document.createElement("img");
+    let image = document.createElement("img");
     image.src = "images/" + path;
     return image;
 }

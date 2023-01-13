@@ -1,5 +1,5 @@
-var overlayDiv = document.getElementById("overlay-div");
-var gameBoard, lobbyBoard;
+let overlayDiv = document.getElementById("overlay-div");
+let gameBoard, lobbyBoard;
 
 const ROLE_INNOCENT = 0;
 const ROLE_MURDERER = 1;
@@ -34,8 +34,8 @@ class Board {
     }
     init() {
         this.div = document.getElementById(this.id);
-        var divs = document.querySelectorAll(`#${this.id} > div:not([id='logo']):not([id='button-div'])`);
-        for(var div of divs) {
+        let divs = document.querySelectorAll(`#${this.id} > div:not([id='logo']):not([id='button-div'])`);
+        for(let div of divs) {
             this.boardDivs[div.id] = div;
             this.boardDataDivs[div.id] = div.querySelector("span");
         }

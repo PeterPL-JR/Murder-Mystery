@@ -1,61 +1,83 @@
 function initKeyboard() {
     // Wykrywanie, kiedy klawisz został kliknięty
     document.body.onkeydown = function (event) {
-        var key = event.key.toUpperCase();
-        keys[key] = true;
-        send();
+        keyDown(event);
     }
     // Wykrywanie, kiedy klawisz został puszczony
     document.body.onkeyup = function (event) {
-        var key = event.key.toUpperCase();
-        keys[key] = false;
-        if (movingKeys.indexOf(key) != -1) {
-            moving = false;
-            movingTime = 0;
-            movingIndex = -1;
-            send();
-        }
-        if (key == "F") {
-            shooting = false;
-            leftButton = false;
-            send();
-        }
+        keyUp(event);
+    }
+}
+function initMouse() {
+    // Wykrywanie, kiedy klawisz został kliknięty
+    document.body.onmousedown = function (event) {
+        mouseDown(event);
+    }
+    // Wykrywanie, kiedy klawisz został puszczony
+    document.body.onmouseup = function (event) {
+        mouseUp(event);
+    }
+    // Wykrywanie ruchu myszy
+    document.body.onmousemove = function (event) {
+        mouseMove(event);
     }
 }
 
-function initMouse() {
-    document.body.onmousedown = function (event) {
-        if(!shooting && !dead && event.button == 0) {
-            attack();
-        }
-        if (shooting && isPlayerReady() && event.button == 0) {
-            leftButton = true;
-            send();
-        }
+// Zdarzenia Klawiatury
+function keyDown(event) {
+    let key = event.key.toUpperCase();
+    keys[key] = true;
+    send();
+}
+function keyUp(event) {
+    let key = event.key.toUpperCase();
+    keys[key] = false;
+    if (movingKeys.indexOf(key) != -1) {
+        PLAYER.moving = false;
+        PLAYER.movingTime = 0;
+        PLAYER.movingIndex = -1;
+        send();
     }
-    document.body.onmouseup = function (event) {
-        if (shooting && !dead && event.button == 0) {
-            var mouseX = getMouseX(event);
-            var mouseY = getMouseY(event);
-            if(charged && leftButton) {
-                shoot(mouseX, mouseY);
-                fireRateTime = 0;
-            }
-            leftButton = false;
-            send();
-        }
-    }
-    document.body.onmousemove = function (event) {
-        var mouseX = getMouseX(event);
-        shootingDirIndex = (mouseX < WIDTH / 2) ? 1 : 0;
-        
-        if(shooting) {
-            direction = shootingDirIndex;
-        }
+    if (key == "F") {
+        BOW.shooting = false;
+        BOW.leftButton = false;
         send();
     }
 }
 
+// Zdarzenia Myszy
+function mouseDown(event) {
+    if(!BOW.shooting && !PLAYER.dead && event.button == 0) {
+        attack();
+    }
+    if (BOW.shooting && isPlayerReady() && event.button == 0) {
+        BOW.leftButton = true;
+        send();
+    }
+}
+function mouseUp(event) {
+    if (BOW.shooting && !PLAYER.dead && event.button == 0) {
+        let mouseX = getMouseX(event);
+        let mouseY = getMouseY(event);
+        if(BOW.charged && BOW.leftButton) {
+            shoot(mouseX, mouseY);
+            fireRateTime = 0;
+        }
+        BOW.leftButton = false;
+        send();
+    }
+}
+function mouseMove(event) {
+    let mouseX = getMouseX(event);
+    BOW.shootingDirIndex = (mouseX < WIDTH / 2) ? 1 : 0;
+    
+    if(BOW.shooting) {
+        PLAYER.direction = BOW.shootingDirIndex;
+    }
+    send();
+}
+
+// Funkcje zwracające pozycję kursora na obiekcie <canvas>
 function getMouseX(event) {
     return event.clientX - canvas.offsetLeft;
 }

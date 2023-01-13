@@ -3,24 +3,28 @@ const SHOT_SPEED = 35;
 const SHOT_DISTANCE = TILE_SIZE * 15;
 const arrowTex = new ImgAsset("arrow.png", ARROW_SIZE, ARROW_SIZE);
 
-const FIRE_RATE = 5;
-var fireRateTime = FIRE_RATE;
-var charged = true;
+const BOW = {
+    shooting: false,
+    shootingDirIndex: -1,
+    leftButton: false,
+    charged: true,
+    shots: []
+};
+const SWORD = {
+    swordAttack: false,
+    swordDirIndex: -1,
+    swordAttackStage: -1
+};
 
-var bow = false;
-var arrows = 0;
+const FIRE_RATE = 5;
+let fireRateTime = FIRE_RATE;
+
+let isBow = false;
+let arrows = 0;
 
 const WEAPON_DEFAULT = 1;
 const WEAPON_ACTIVE = 0;
-var weaponTextures = {};
-
-var shooting = false;
-var leftButton = false;
-var shootingDirIndex = -1;
-
-var swordAttack = false;
-var swordAttackStage = -1;
-var swordDirIndex = -1;
+let weaponTextures = {};
 
 class ArrowShot {
     constructor(startX, startY, angle) {
@@ -45,21 +49,21 @@ class ArrowShot {
 
         ctx.fillStyle = "red";
 
-        var tileX = this.xPos + TILE_SIZE / 2;
-        var tileY = this.yPos + TILE_SIZE / 2;
+        let tileX = this.xPos + TILE_SIZE / 2;
+        let tileY = this.yPos + TILE_SIZE / 2;
 
-        var tile = getTile(tileX, tileY);
+        let tile = getTile(tileX, tileY);
 
         if (!tile) this.destroy();
         else {
-            var type = tilesNames[tile.type];
+            let type = tilesNames[tile.type];
             if (tilesSolid[tile.type] && type != "water" && type != "rock") {
                 this.destroy();
             }
         }
 
-        var renderX = getX(this.xPos);
-        var renderY = getY(this.yPos);
+        let renderX = getX(this.xPos);
+        let renderY = getY(this.yPos);
 
         drawShot(renderX, renderY, this.angle);
         send();
@@ -69,25 +73,25 @@ class ArrowShot {
     }
 
     getDistance() {
-        var xPos = this.xPos - this.startX;
-        var yPos = this.yPos - this.startY;
+        let xPos = this.xPos - this.startX;
+        let yPos = this.yPos - this.startY;
         return Math.sqrt(Math.pow(xPos, 2) + Math.pow(yPos, 2))
     }
 }
 
 function attack() {
-    if(role != ROLE_MURDERER || !gameStarted) return;
-    var pos = [playerX, playerY];
+    if(!gameStarted || PLAYER.role != ROLE_MURDERER) return;
+    let pos = [PLAYER.x, PLAYER.y];
     
-    var delinquents = [];
-    for(var i = 0; i < otherPlayers.length; i++) {
-        var player = otherPlayers[i];
-        const playerPos = [player.xPos, player.yPos];
+    let delinquents = [];
+    for(let i = 0; i < otherPlayers.length; i++) {
+        let player = otherPlayers[i].player;
+        const playerPos = [player.x, player.y];
 
-        if(player.playerCode == playerCode || player.dead) continue;
+        if(player.playerCode == PLAYER.playerCode || player.dead) continue;
         if(!Hitbox.isCollision(hitbox.health, hitbox.health, pos, playerPos)) continue;
 
-        var sides = Hitbox.getSide(hitbox.health, hitbox.health, pos, playerPos);
+        let sides = Hitbox.getSide(hitbox.health, hitbox.health, pos, playerPos);
         delinquents.push({
             index: i,
             side: sides.horizontal
@@ -95,48 +99,49 @@ function attack() {
     }
 
     if(delinquents.length == 0) {
-        swordDirIndex = (direction == LEFT || direction == RIGHT) ? direction : LEFT;
-        direction = swordDirIndex;
+        SWORD.swordDirIndex = (PLAYER.direction == LEFT || PLAYER.direction == RIGHT) ? PLAYER.direction : LEFT;
+        PLAYER.direction = SWORD.swordDirIndex;
         renderAttack();
         return;
     }
     
-    var playerIndex = -1;
-    var playerPixels = -1;
+    let playerIndex = -1;
+    let playerPixels = -1;
 
-    for(var obj of delinquents) {
-        var player = otherPlayers[obj.index];
-        var playerPos = [player.xPos, player.yPos];
+    for(let obj of delinquents) {
+        let player = otherPlayers[obj.index].player;
+        let playerPos = [player.x, player.y];
 
-        var pixels = Hitbox.commonPixels(hitbox.health, hitbox.health, pos, playerPos);
+        let pixels = Hitbox.commonPixels(hitbox.health, hitbox.health, pos, playerPos);
         if(pixels > playerPixels) {
             playerPixels = pixels;
             playerIndex = obj.index;
         }
     }
 
-    var player = otherPlayers[playerIndex];
-    swordDirIndex = Hitbox.getSide(hitbox.health, hitbox.health, [player.xPos, player.yPos], pos).horizontal;
-    direction = swordDirIndex;
+    let defeatedPlayer = otherPlayers[playerIndex].player;
+    SWORD.swordDirIndex = Hitbox.getSide(hitbox.health, hitbox.health, [defeatedPlayer.x, defeatedPlayer.y], pos).horizontal;
+    PLAYER.direction = SWORD.swordDirIndex;
 
-    var playerId = player.playerCode;
-    socket.emit("defeat-player", {playerId, gameCode, playerCode});
+    const defeatedCode = defeatedPlayer.playerCode;
+    const murdererCode = PLAYER.playerCode;
+    socket.emit("defeat-player", {defeatedCode, gameCode: PLAYER.gameCode, murdererCode});
     renderAttack();
 }
 
 function renderAttack() {
     const SWORD_ATTACK_TIME = 150;
     
-    swordAttack = true;
-    swordAttackStage = WEAPON_ACTIVE;
+    SWORD.swordAttack = true;
+    SWORD.swordAttackStage = WEAPON_ACTIVE;
     send();
     setTimeout(function () {
 
-        swordAttackStage = WEAPON_DEFAULT;
+        SWORD.swordAttackStage = WEAPON_DEFAULT;
         send();
         setTimeout(function () {
-            swordAttack = false;
-            swordAttackStage = -1;
+            SWORD.swordAttack = false;
+            SWORD.swordAttackStage = -1;
             send();
         }, SWORD_ATTACK_TIME);
 
@@ -146,18 +151,18 @@ function renderAttack() {
 function shoot(mouseX, mouseY) {
     if(!gameStarted) return;
 
-    var playerCenterX = playerX + PLAYER_SIZE / 2;
-    var playerCenterY = playerY + PLAYER_SIZE / 2;
+    let playerCenterX = PLAYER.x + PLAYER_SIZE / 2;
+    let playerCenterY = PLAYER.y + PLAYER_SIZE / 2;
 
-    var xPos = mouseX + playerX - X_OFFSET;
-    var yPos = mouseY + playerY - Y_OFFSET;
+    let xPos = mouseX + PLAYER.x - X_OFFSET;
+    let yPos = mouseY + PLAYER.y - Y_OFFSET;
 
-    var xLength = xPos - playerCenterX;
-    var yLength = yPos - playerCenterY;
+    let xLength = xPos - playerCenterX;
+    let yLength = yPos - playerCenterY;
 
-    var angle = Math.atan2(yLength, xLength);
-    var shot = new ArrowShot(playerCenterX, playerCenterY, angle);
-    shots.push(shot);
+    let angle = Math.atan2(yLength, xLength);
+    let shot = new ArrowShot(playerCenterX, playerCenterY, angle);
+    BOW.shots.push(shot);
     send();
 
     arrows--;
@@ -169,16 +174,16 @@ function drawShot(x, y, angle) {
 }
 
 function renderShots() {
-    for (var s = 0; s < shots.length; s++) {
-        var shot = shots[s];
+    for (let s = 0; s < BOW.shots.length; s++) {
+        let shot = BOW.shots[s];
         shot.update();
         if (shot.destroyed) {
-            shots.splice(s, 1);
+            BOW.shots.splice(s, 1);
             send();
         }
     }
 }
 
 function isPlayerReady() {
-    return bow && arrows > 0;
+    return isBow && arrows > 0;
 }
