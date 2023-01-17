@@ -5,7 +5,7 @@
     {"file": "stone_bricks.png","solid": true},
 
     {"file": "water.png", "solid": true},
-    {"file": "sandstone_floor.png", "solid": false},
+    {"file": "sandstone_floor2.png", "solid": false},
     {"file": "sand.png", "solid": false},
     {"file": "sandstone_bricks.png", "solid": true},
 
@@ -24,8 +24,53 @@
     {"file": "rock.png", "solid": true},
     {"file": "sandstone.png", "solid": true},
 
-    {"file": "stone_floor.png", "solid": false},
+    {"file": "stone_floor2.png", "solid": false},
     {"file": "gravel.png", "solid": false},
     {"file": "hedge.png", "solid": true},
-    {"file": "barrel.png", "solid": true}
+    {"file": "barrel.png", "solid": true},
+
+    {"file": "pumpkin1.png", "solid": true},
+    {"file": "pumpkin2.png", "solid": true},
+    {"file": "swamp_lily1.png", "solid": false},
+    {"file": "swamp_lily2.png", "solid": false},
+
+    {"file": "swamp.png", "solid": true},
+    {"file": "grass2.png", "solid": false},
+    {"file": "stone_floor1.png", "solid": false},
+    {"file": "sandstone_floor1.png", "solid": false},
+    
+	{"file": "rails.png", "solid": false},
+    {"file": "minecart.png", "solid": true},
+    {"file": "crystal.png", "solid": true},
+	{"file": "light_bricks.png", "solid": true},
+	
+	{"file": "light_floor.png", "solid": false},
+	{"file": "bush.png", "solid": true},
+	{"file": "pot.png", "solid": true},
+	{"file": "monument.png", "solid": true},
+	
+	{"file": "snow_rock.png", "solid": true},
+	{"file": "snow.png", "solid": false},
+	{"file": "ice.png", "solid": false},
+	{"file": "ice_wall.png", "solid": true},
+	
+	{"file": "ice_bricks.png", "solid": true},
+	{"file": "snow_bush.png", "solid": true},
+	{"file": "lantern.png", "solid": true},
+	{"file": "snow_lantern.png", "solid": true},
+	
+	{"file": "golden_bricks.png", "solid": true},
+	{"file": "golden_floor.png", "solid": false},
+	{"file": "golden_stone.png", "solid": true},
+	{"file": "golden_stone_floor.png", "solid": false},
+	
+	{"file": "torch.png", "solid": true},
+	{"file": "chest.png", "solid": true},
+	{"file": "wheat.png", "solid": false},
+	{"file": "hay.png", "solid": true},
+	
+	{"file": "wheat_hay.png", "solid": true},
+	{"file": "dirt.png", "solid": false},
+	{"file": "fence.png", "solid": true}
+	
 ]

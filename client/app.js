@@ -62,6 +62,9 @@ function setInitEvents() {
         initHitboxes(data.hitboxes); // Przygotuj hitboxy
         spawnPositions = data.spawn;
 
+        PLAYER.x = data.map.beginSpawn.x * TILE_SIZE - PLAYER_BEGIN_OFFSET_X;
+        PLAYER.y = data.map.beginSpawn.y * TILE_SIZE - PLAYER_BEGIN_OFFSET_Y;
+
         lobbyBoard.setString("map-name", data.map.name);
         lobbyBoard.setString("game-code", PLAYER.gameCode);
         gameBoard.setString("map-name", data.map.name);

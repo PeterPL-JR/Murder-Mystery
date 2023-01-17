@@ -3,17 +3,14 @@ const SPEED = 9; // Szybkość gracza
 const TEX_SPEED = SPEED * 4; // Szybkość zmiany tekstury chodzenia
 
 // Położenie początkowe x, y gracza na mapie
-const PLAYER_BEGIN_X = MAP_SIZE * TILE_SIZE / 2 - PLAYER_SIZE / 2 - TILE_SIZE / 2;
-const PLAYER_BEGIN_Y= MAP_SIZE * TILE_SIZE / 2 - PLAYER_SIZE / 2 + TILE_SIZE / 2;
+const PLAYER_BEGIN_OFFSET_X = PLAYER_SIZE / 2 - TILE_SIZE / 2;
+const PLAYER_BEGIN_OFFSET_Y = PLAYER_SIZE / 2 + TILE_SIZE / 2;
 
 // Położenie x, y gracza na obiekcie <canvas>
 const X_OFFSET = WIDTH / 2 - PLAYER_SIZE / 2;
 const Y_OFFSET = HEIGHT / 2 - PLAYER_SIZE / 2;
 
 const PLAYER = {
-    x: PLAYER_BEGIN_X,
-    y: PLAYER_BEGIN_Y,
-
     skinIndex: 0,
     dead: false,
     direction: 0,

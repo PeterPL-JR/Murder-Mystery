@@ -4,8 +4,7 @@ const {getRandom} = require("./functions");
 const mapsObjs = []; // Mapy
 let tiles = []; // // Obiekty kafelków
 
-const MAPS = 4;
-exports.MAPS = MAPS;
+let MAPS; // Liczba Map JSON
 
 const MAPS_PATH = "resources/maps";
 const TILES_PATH = "resources/tiles.json";
@@ -16,6 +15,8 @@ exports.initMaps = function() {
     for(let fileName of filesNames) {
         initMap(fileName);
     }
+    MAPS = filesNames.length;
+    exports.MAPS = MAPS;
 }
 
 // Funkcja tworząca pojedynczą mapę z pliku JSON
@@ -26,11 +27,16 @@ function initMap(fileName) {
     const mapName = obj.mapName;
     const tiles = obj.tiles;
     const spawn = obj.spawn;
+    const beginSpawn = {
+        x: obj.beginSpawn[0],
+        y: obj.beginSpawn[1],
+    };
 
     mapsObjs.push({
         name: mapName,
         data: tiles,
-        spawn: spawn
+        spawn: spawn,
+        beginSpawn: beginSpawn
     });
     exports.mapsObjs = mapsObjs;
 }
