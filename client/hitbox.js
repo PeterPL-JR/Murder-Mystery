@@ -2,6 +2,12 @@ const hitbox = {};
 
 class Hitbox {
     constructor(hitboxData) {
+        if(hitboxData != null) {
+            this.init(hitboxData);
+        }
+    }
+
+    init(hitboxData) {
         this.rect = hitboxData.rectangle;
         if(this.rect == null) {
             this.rect = {
@@ -65,6 +71,33 @@ class Hitbox {
         if(vertical == 0) vertical = h1.height;
 
         return horizontal * vertical;
+    }
+}
+
+class ShotHitbox extends Hitbox {
+    constructor(hitboxSize, angle, shotSize) {
+        super(null);
+        this.init(hitboxSize, angle, shotSize);
+    }
+    init(hitboxSize, angle, shotSize) {
+        const RADIUS = shotSize / 2 - hitboxSize / 2;
+        const x = Math.cos(angle) * RADIUS;
+        const y = Math.sin(angle) * RADIUS;
+
+        const left = shotSize / 2 + x - hitboxSize / 2;
+        const top = shotSize / 2 + y - hitboxSize / 2;
+
+        const rectangle = {
+            left,
+            right: shotSize - hitboxSize - left,
+            top,
+            bottom: shotSize - hitboxSize - top
+        };
+        super.init({
+            rectangle,
+            width: shotSize,
+            height: shotSize
+        });
     }
 }
 

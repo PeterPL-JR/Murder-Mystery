@@ -1,4 +1,6 @@
 const ARROW_SIZE = 96;
+const ARROW_HITBOX_SIZE = 24;
+
 const SHOT_SPEED = 35;
 const SHOT_DISTANCE = TILE_SIZE * 15;
 const arrowTex = new ImgAsset("arrow.png", ARROW_SIZE, ARROW_SIZE);
@@ -38,6 +40,8 @@ class ArrowShot {
         this.xPos = startX - TILE_SIZE / 2;
         this.yPos = startY - TILE_SIZE / 2;
         this.destroyed = false;
+
+        this.hitbox = new ShotHitbox(ARROW_HITBOX_SIZE, this.angle, ARROW_SIZE);
     }
     update() {
         this.xPos += this.xSpeed;
@@ -67,6 +71,8 @@ class ArrowShot {
 
         drawShot(renderX, renderY, this.angle);
         send();
+
+        this.hitbox.render(renderX, renderY, "red");
     }
     destroy() {
         this.destroyed = true;
