@@ -232,16 +232,19 @@ function sendData(socket) {
 function defeatPlayer(defeatedCode, gameCode, murdererCode) {
     let room = rooms[gameCode];
 
+    let defeatedPlayerIndex = functions.findPlayerIndex(room.players, defeatedCode);
+    let defeatedPlayer = room.players[defeatedPlayerIndex];
+    defeatedPlayer.player.dead = true;
+
     if (murdererCode && murdererCode != null) {
         const murderer = functions.findPlayerInRoom(room, murdererCode);
         if (murderer.player.role == ROLE_MURDERER) murderer.player.kills++;
         else {
+            if(defeatedPlayer.player.role != ROLE_MURDERER) {
+                defeatPlayer(murdererCode, gameCode, null);
+            }
         }
     }
-
-    let defeatedPlayerIndex = functions.findPlayerIndex(room.players, defeatedCode);
-    let defeatedPlayer = room.players[defeatedPlayerIndex];
-    defeatedPlayer.player.dead = true;
 
     room.deadTextures.push({
         index: defeatedPlayer.player.skinIndex,

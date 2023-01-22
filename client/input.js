@@ -41,6 +41,7 @@ function keyUp(event) {
     if (key == "F") {
         BOW.shooting = false;
         BOW.leftButton = false;
+        PLAYER.direction = BOW.shootingDirIndex;
         send();
     }
 }
@@ -48,7 +49,7 @@ function keyUp(event) {
 // Zdarzenia Myszy
 function mouseDown(event) {
     if(!BOW.shooting && !PLAYER.dead && event.button == 0) {
-        attack();
+        swordAttack();
     }
     if (BOW.shooting && isPlayerReady() && event.button == 0) {
         BOW.leftButton = true;

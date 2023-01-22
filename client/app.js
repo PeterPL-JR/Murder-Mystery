@@ -162,7 +162,7 @@ function update() {
     // Strzelanie z łuku
     BOW.charged = fireRateTime >= FIRE_RATE;
 
-    if (keys["F"]) BOW.shooting = keys["F"];
+    if (keys["F"] && !PLAYER.dead && gameStarted) BOW.shooting = keys["F"];
     else BOW.shooting = false;
 
     if(!isPlayerReady()) {

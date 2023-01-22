@@ -56,34 +56,34 @@ allTheRightMoves[movingKeys[UP]] = [0, -1];
 // Funkcja renderująca graczy
 function renderPlayers() {
     drawDeadTextures();
-    
+
     for (let playerData of otherPlayers) {
         const player = playerData.player;
 
         if (player.playerCode == PLAYER.playerCode) continue;
-        if(player.dead && !PLAYER.dead) continue;
+        if (player.dead && !PLAYER.dead) continue;
 
         let xPos = getX(player.x);
         let yPos = getY(player.y);
         drawPlayer(xPos, yPos, player, playerData.bow, playerData.sword);
-        
-        if(!gameStarted || PLAYER.dead) {
+
+        if (!gameStarted || PLAYER.dead) {
             let textX = xPos + PLAYER_SIZE / 2;
             let textY = yPos - 18;
             drawNick(player.nick, textX, textY);
         }
 
-        for(let shot of playerData.bow.shots) {
+        for (let shot of playerData.bow.shots) {
             drawShot(getX(shot.xPos), getY(shot.yPos), shot.angle);
         }
     }
 }
 
 function drawDeadTextures() {
-    for(let texture of deadTextures) {
+    for (let texture of deadTextures) {
         const DIE_TEX_X = 3;
         const DIE_TEX_Y = 0;
-        
+
         const DIE_OFFSET = 30;
         let renderX = getX(texture.xPos);
         let renderY = getY(texture.yPos) + DIE_OFFSET;
@@ -98,7 +98,7 @@ function send() {
         player: PLAYER,
         bow: BOW,
         sword: SWORD
-    }; 
+    };
     socket.emit("update-player", object);
 }
 
@@ -114,7 +114,7 @@ function playerMoving() {
             let moveY = playerMove[1];
             PLAYER.direction = movingKeys.indexOf(keyOfObj);
 
-            if(!isCollision(PLAYER.x, PLAYER.y, moveX, moveY, PLAYER.direction) || PLAYER.dead) {
+            if (!isCollision(PLAYER.x, PLAYER.y, moveX, moveY, PLAYER.direction) || PLAYER.dead) {
                 move(moveX, moveY);
             }
         }
@@ -135,20 +135,22 @@ function drawPlayer(x, y, player, bowObject, swordObject) {
     const BOW_TEX = 3;
     const SWORD_TEX = 4;
 
-    if(bowObject.shooting) {
-        let shootingTextures = weaponTextures[bowObject.shootingDirIndex == LEFT ? "left" : "right"];
-        let index = bowObject.leftButton ? WEAPON_ACTIVE : WEAPON_DEFAULT;
-        if(!bowObject.charged) index = WEAPON_DEFAULT;
+    if (!player.dead) {
+        if (bowObject.shooting) {
+            let shootingTextures = weaponTextures[bowObject.shootingDirIndex == LEFT ? "left" : "right"];
+            let index = bowObject.leftButton ? WEAPON_ACTIVE : WEAPON_DEFAULT;
+            if (!bowObject.charged) index = WEAPON_DEFAULT;
 
-        xOffset = shootingTextures[index];
-        yOffset = BOW_TEX;
-    }
-    if(swordObject.swordAttack) {
-        let attackTextures = weaponTextures[swordObject.swordDirIndex == LEFT ? "left" : "right"];
-        let index = swordObject.swordAttackStage ? WEAPON_DEFAULT : WEAPON_ACTIVE;
+            xOffset = shootingTextures[index];
+            yOffset = BOW_TEX;
+        }
+        if (swordObject.swordAttack) {
+            let attackTextures = weaponTextures[swordObject.swordDirIndex == LEFT ? "left" : "right"];
+            let index = swordObject.swordAttackStage ? WEAPON_DEFAULT : WEAPON_ACTIVE;
 
-        xOffset = attackTextures[index];
-        yOffset = SWORD_TEX;
+            xOffset = attackTextures[index];
+            yOffset = SWORD_TEX;
+        }
     }
 
     texture[xOffset][yOffset].draw(x, y);
@@ -173,13 +175,13 @@ function isCollision(playerX, playerY, moveX, moveY, direction) {
     let xPos = playerX + moveX;
     let yPos = playerY + moveY;
 
-    if(direction == RIGHT || direction == LEFT) yPos += hitbox.player.top + hitbox.player.height / 2;
-    if(direction == DOWN || direction == UP) xPos += hitbox.player.left + hitbox.player.width / 2;
+    if (direction == RIGHT || direction == LEFT) yPos += hitbox.player.top + hitbox.player.height / 2;
+    if (direction == DOWN || direction == UP) xPos += hitbox.player.left + hitbox.player.width / 2;
 
-    if(direction == RIGHT) xPos += hitbox.player.right;
-    if(direction == LEFT) xPos += hitbox.player.left;
-    if(direction == DOWN) yPos += hitbox.player.bottom;
-    if(direction == UP) yPos += hitbox.player.top;
+    if (direction == RIGHT) xPos += hitbox.player.right;
+    if (direction == LEFT) xPos += hitbox.player.left;
+    if (direction == DOWN) yPos += hitbox.player.bottom;
+    if (direction == UP) yPos += hitbox.player.top;
 
     let tile = getTile(xPos, yPos);
     return tilesSolid[tile.type];

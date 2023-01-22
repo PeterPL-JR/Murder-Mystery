@@ -72,10 +72,19 @@ class ArrowShot {
         drawShot(renderX, renderY, this.angle);
         send();
 
-        this.hitbox.render(renderX, renderY, "red");
+        this.updateAttack();
     }
     destroy() {
         this.destroyed = true;
+    }
+
+    updateAttack() {
+        const posArray = [this.xPos, this.yPos];
+        const delinquents = attackPlayer(posArray, this.hitbox);
+        
+        if(defeatPlayer(delinquents, posArray, this.hitbox) != -1) {
+            this.destroy();
+        }
     }
 
     getDistance() {
@@ -85,32 +94,43 @@ class ArrowShot {
     }
 }
 
-function attack() {
+function swordAttack() {
     if(!gameStarted || PLAYER.role != ROLE_MURDERER) return;
-    let pos = [PLAYER.x, PLAYER.y];
+    let thisPlayerPosition = [PLAYER.x, PLAYER.y];
     
-    let delinquents = [];
-    for(let i = 0; i < otherPlayers.length; i++) {
-        let player = otherPlayers[i].player;
-        const playerPos = [player.x, player.y];
-
-        if(player.playerCode == PLAYER.playerCode || player.dead) continue;
-        if(!Hitbox.isCollision(hitbox.health, hitbox.health, pos, playerPos)) continue;
-
-        let sides = Hitbox.getSide(hitbox.health, hitbox.health, pos, playerPos);
-        delinquents.push({
-            index: i,
-            side: sides.horizontal
-        });
-    }
-
+    const delinquents = attackPlayer(thisPlayerPosition, hitbox.health);
     if(delinquents.length == 0) {
         SWORD.swordDirIndex = (PLAYER.direction == LEFT || PLAYER.direction == RIGHT) ? PLAYER.direction : LEFT;
         PLAYER.direction = SWORD.swordDirIndex;
         renderAttack();
         return;
     }
-    
+
+    const defeatedPlayer = defeatPlayer(delinquents, thisPlayerPosition, hitbox.health);
+    SWORD.swordDirIndex = Hitbox.getSide(hitbox.health, hitbox.health, [defeatedPlayer.x, defeatedPlayer.y], thisPlayerPosition).horizontal;
+    PLAYER.direction = SWORD.swordDirIndex;
+    renderAttack();
+}
+
+function attackPlayer(murdererPosition, murdererHitbox) {
+    let delinquents = [];
+    for(let i = 0; i < otherPlayers.length; i++) {
+        let player = otherPlayers[i].player;
+        const playerPos = [player.x, player.y];
+
+        if(player.playerCode == PLAYER.playerCode || player.dead) continue;
+        if(!Hitbox.isCollision(murdererHitbox, hitbox.health, murdererPosition, playerPos)) continue;
+
+        let sides = Hitbox.getSide(murdererHitbox, hitbox.health, murdererPosition, playerPos);
+        delinquents.push({
+            index: i,
+            side: sides.horizontal
+        });
+    }
+    return delinquents;
+}
+
+function defeatPlayer(delinquents, murdererPosition, murdererHitbox) {
     let playerIndex = -1;
     let playerPixels = -1;
 
@@ -118,21 +138,22 @@ function attack() {
         let player = otherPlayers[obj.index].player;
         let playerPos = [player.x, player.y];
 
-        let pixels = Hitbox.commonPixels(hitbox.health, hitbox.health, pos, playerPos);
+        let pixels = Hitbox.commonPixels(murdererHitbox, hitbox.health, murdererPosition, playerPos);
         if(pixels > playerPixels) {
             playerPixels = pixels;
             playerIndex = obj.index;
         }
     }
-
+    
+    if(playerIndex == -1) {
+        return playerIndex;
+    }
     let defeatedPlayer = otherPlayers[playerIndex].player;
-    SWORD.swordDirIndex = Hitbox.getSide(hitbox.health, hitbox.health, [defeatedPlayer.x, defeatedPlayer.y], pos).horizontal;
-    PLAYER.direction = SWORD.swordDirIndex;
-
+    
     const defeatedCode = defeatedPlayer.playerCode;
     const murdererCode = PLAYER.playerCode;
     socket.emit("defeat-player", {defeatedCode, gameCode: PLAYER.gameCode, murdererCode});
-    renderAttack();
+    return defeatedPlayer;
 }
 
 function renderAttack() {
