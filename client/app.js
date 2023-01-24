@@ -114,6 +114,13 @@ function setGameEvents() {
     socket.on("game-time", function(data) {
         gameBoard.setString("time-left", data.timeString);
     });
+    
+    socket.on("take-detective-bow", function() {
+        takeDetectiveBow();
+    });
+    socket.on("drop-detective-bow", function(data) {
+        dropDetectiveBow(data.xPos, data.yPos);
+    });
 }
 
 // Funkcja tworząca tablicę z kafelkami
@@ -140,12 +147,17 @@ function draw() {
     for(let anim of anims) {
         anim.render();
     }
+    drawDeadTextures();
+
+    if(detectiveBow != null) {
+        detectiveBow.render();
+    }
 
     renderPlayers();
     renderShots();
 
     // Renderowanie Nicku
-    drawNick(PLAYER.nick, WIDTH / 2, Y_OFFSET - 18);
+    drawNick(PLAYER.nick, WIDTH / 2, Y_OFFSET - 18, PLAYER_NICK_COLOR, PLAYER_OVERLAY_NICK_COLOR);
 
     // Renderowanie Gracza
     drawPlayer(X_OFFSET, Y_OFFSET, PLAYER, BOW, SWORD);
@@ -173,6 +185,9 @@ function update() {
     if(!PLAYER.dead) {
         checkCoinCollision(PLAYER.x, PLAYER.y);
     }
+    if(!PLAYER.dead && PLAYER.role == ROLE_INNOCENT && detectiveBow != null) {
+        checkBowCollision();
+    }
     if(time % 5 == 0 && fireRateTime < FIRE_RATE) {
         fireRateTime++;
     }
@@ -180,6 +195,9 @@ function update() {
     // Animacje
     for(let anim of anims) {
         anim.update();
+    }
+    if(detectiveBow != null) {
+        detectiveBow.update();
     }
 
     draw(); // Renderowanie gry

@@ -74,6 +74,9 @@ function setEvents(socket) {
     socket.on("defeat-player", function (data) {
         defeatPlayer(data.defeatedCode, data.gameCode, data.murdererCode);
     });
+    socket.on("take-detective-bow", function(data) {
+        takeDetectiveBow(data.gameCode, data.playerCode);
+    });
 }
 
 // Funkcja dołączająca gracza do gry
@@ -199,6 +202,7 @@ function createRoles(room) {
         if (detectiveIndex >= room.players.length) detectiveIndex = 0;
     }
     room.players[detectiveIndex].player.role = ROLE_DETECTIVE;
+    room.detectiveBowPlayer = detectiveIndex;
 }
 
 // Funkcja poruszająca gracza
@@ -236,6 +240,10 @@ function defeatPlayer(defeatedCode, gameCode, murdererCode) {
     let defeatedPlayer = room.players[defeatedPlayerIndex];
     defeatedPlayer.player.dead = true;
 
+    if(defeatedPlayerIndex == room.detectiveBowPlayer) {
+        dropDetectiveBow(room, defeatedPlayer);
+    }
+
     if (murdererCode && murdererCode != null) {
         const murderer = functions.findPlayerInRoom(room, murdererCode);
         if (murderer.player.role == ROLE_MURDERER) murderer.player.kills++;
@@ -264,21 +272,37 @@ function defeatPlayer(defeatedCode, gameCode, murdererCode) {
     }
 
     const murdererObj = findMurderer(gameCode);
-    const detectiveObj = findDetective(gameCode);
-
     if (murdererObj && murdererObj.player.dead) {
         stopGame(gameCode);
-    }
-    if (detectiveObj && detectiveObj.player.dead) {
-        for (let playerSocket of room.sockets) {
-            playerSocket.emit("defeat-detective");
-        }
     }
 
     if (murdererVictory) {
         stopGame(gameCode);
     }
     sendInnocents(gameCode);
+}
+
+function takeDetectiveBow(gameCode, playerCode) {
+    const room = rooms[gameCode];
+    if(room.detectiveBowPlayer != null) {
+        return;
+    }
+    const playerIndex = functions.findPlayerIndex(room.players, playerCode);
+
+    room.detectiveBowPlayer = playerIndex;
+    for (let playerSocket of room.sockets) {
+        playerSocket.emit("take-detective-bow");
+    }
+}
+
+function dropDetectiveBow(room, defeatedPlayer) {
+    const xPos = defeatedPlayer.player.x;
+    const yPos = defeatedPlayer.player.y;
+
+    room.detectiveBowPlayer = null;
+    for (let playerSocket of room.sockets) {
+        playerSocket.emit("drop-detective-bow", {xPos, yPos});
+    }
 }
 
 function findMurderer(gameCode) {

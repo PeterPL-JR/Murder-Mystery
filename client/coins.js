@@ -16,7 +16,7 @@ function addCoin(coinsArray, index) {
         xPos: animX,
         yPos: animY,
 
-        anim: new Anim(coinImage, animX, animY, COIN_SIZE, COIN_SIZE, COIN_FRAME_TIME, COIN_MAX_FRAMES),
+        anim: new Anim(coinImage, animX, animY, COIN_SIZE, COIN_SIZE, COIN_FRAME_TIME, COIN_MAX_FRAMES, anims),
         hitbox: new Hitbox({
             rectangle: null,
             width: COIN_SIZE,

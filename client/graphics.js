@@ -51,8 +51,9 @@ class ImgAsset {
 }
 
 class Anim {
-    constructor(image, x, y, width, height, frameTime, maxFrames) {
+    constructor(image, x, y, width, height, frameTime, maxFrames, array=null) {
         this.image = image;
+        this.array = array;
         
         this.width = width;
         this.height = height;
@@ -79,10 +80,14 @@ class Anim {
         }
 
         this.index = anims.length;
-        anims.push(this);
+        if(this.array != null) {
+            anims.push(this);
+        }
     }
     destroy() {
-        anims.splice(this.index, 1);
+        if(this.array != null) {
+            anims.splice(this.index, 1);
+        }
         this.destroyed = true;
     }
     update() {

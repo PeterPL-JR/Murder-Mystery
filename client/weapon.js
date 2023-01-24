@@ -1,9 +1,24 @@
 const ARROW_SIZE = 96;
 const ARROW_HITBOX_SIZE = 24;
 
+const D_BOW_SIZE = 112;
+const D_BOW_FRAME_TIME = 9;
+const D_BOW_MAX_FRAMES = 8;
+
 const SHOT_SPEED = 35;
 const SHOT_DISTANCE = TILE_SIZE * 15;
 const arrowTex = new ImgAsset("arrow.png", ARROW_SIZE, ARROW_SIZE);
+const dBowImage = createImage("bow.png");
+
+const D_BOW_COLOR = COLOR_AQUA;
+const D_BOW_OVERLAY_COLOR = "white";
+
+let detectiveBow = null;
+const dBowHitbox = new Hitbox({
+    rectangle: null,
+    width: D_BOW_SIZE,
+    height: D_BOW_SIZE
+});
 
 const BOW = {
     shooting: false,
@@ -91,6 +106,36 @@ class ArrowShot {
         let xPos = this.xPos - this.startX;
         let yPos = this.yPos - this.startY;
         return Math.sqrt(Math.pow(xPos, 2) + Math.pow(yPos, 2))
+    }
+}
+
+class DetectiveBow {
+    constructor(xPos, yPos) {
+        this.xPos = xPos;
+        this.yPos = yPos;
+
+        this.destroyed = false;
+        this.init();
+    }
+    init() {
+        this.anim = new Anim(dBowImage, this.xPos, this.yPos, D_BOW_SIZE, D_BOW_SIZE, D_BOW_FRAME_TIME, D_BOW_MAX_FRAMES);
+    }
+
+    update() {
+        if(this.destroyed) return;
+        this.anim.update();
+    }
+    render() {
+        if(this.destroyed) return;
+        this.anim.render();
+
+        const renderX = getX(this.xPos) + D_BOW_SIZE / 2;
+        const renderY = getY(this.yPos) - 12;
+        drawNick("Łuk detektywa", renderX, renderY, D_BOW_COLOR, D_BOW_OVERLAY_COLOR);
+    }
+    destroy() {
+        this.anim.destroy();
+        this.destroyed = true;
     }
 }
 
@@ -194,6 +239,28 @@ function shoot(mouseX, mouseY) {
 
     arrows--;
     gameBoard.setString("arrows", arrows);
+}
+
+function checkBowCollision() {
+    const playerPos = [PLAYER.x, PLAYER.y];
+    const dBowPos = [detectiveBow.xPos, detectiveBow.yPos];
+    const isCollision = Hitbox.isCollision(hitbox.coins, dBowHitbox, playerPos, dBowPos);
+
+    if(isCollision) {
+        socket.emit("take-detective-bow", {gameCode: PLAYER.gameCode, playerCode: PLAYER.playerCode});
+    }
+}
+
+function takeDetectiveBow() {
+    if(detectiveBow != null) {
+        detectiveBow.destroy();
+    }
+    detectiveBow = null;
+}
+function dropDetectiveBow(xPos, yPos) {
+    const x = xPos + PLAYER_SIZE / 2 - D_BOW_SIZE / 2;
+    const y = yPos + PLAYER_SIZE / 2 - D_BOW_SIZE / 2;
+    detectiveBow = new DetectiveBow(x, y);
 }
 
 function drawShot(x, y, angle) {

@@ -10,6 +10,9 @@ const PLAYER_BEGIN_OFFSET_Y = PLAYER_SIZE / 2 + TILE_SIZE / 2;
 const X_OFFSET = WIDTH / 2 - PLAYER_SIZE / 2;
 const Y_OFFSET = HEIGHT / 2 - PLAYER_SIZE / 2;
 
+const PLAYER_NICK_COLOR = "white";
+const PLAYER_OVERLAY_NICK_COLOR = "#121212";
+
 const PLAYER = {
     skinIndex: 0,
     dead: false,
@@ -55,8 +58,6 @@ allTheRightMoves[movingKeys[UP]] = [0, -1];
 
 // Funkcja renderująca graczy
 function renderPlayers() {
-    drawDeadTextures();
-
     for (let playerData of otherPlayers) {
         const player = playerData.player;
 
@@ -70,7 +71,7 @@ function renderPlayers() {
         if (!gameStarted || PLAYER.dead) {
             let textX = xPos + PLAYER_SIZE / 2;
             let textY = yPos - 18;
-            drawNick(player.nick, textX, textY);
+            drawNick(player.nick, textX, textY, PLAYER_NICK_COLOR, PLAYER_OVERLAY_NICK_COLOR);
         }
 
         for (let shot of playerData.bow.shots) {
@@ -157,11 +158,14 @@ function drawPlayer(x, y, player, bowObject, swordObject) {
 }
 
 // Funkcja renderująca nick gracza
-function drawNick(nick, x, y) {
-    ctx.font = "40px Verdana";
-    ctx.fillStyle = "white";
+function drawNick(nick, x, y, color, overlayColor) {
+    ctx.font = "bold 40px Verdana";
+    ctx.fillStyle = color;
     ctx.textAlign = "center";
     ctx.fillText(nick, x, y);
+
+    ctx.strokeStyle = overlayColor;
+    ctx.strokeText(nick, x, y);
 }
 
 // Funkcja poruszania się
