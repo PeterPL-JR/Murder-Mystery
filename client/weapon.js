@@ -13,7 +13,9 @@ const dBowImage = createImage("bow.png");
 const D_BOW_COLOR = COLOR_AQUA;
 const D_BOW_OVERLAY_COLOR = "white";
 
+let isDetectiveBow = false;
 let detectiveBow = null;
+
 const dBowHitbox = new Hitbox({
     rectangle: null,
     width: D_BOW_SIZE,
@@ -33,7 +35,10 @@ const SWORD = {
     swordAttackStage: -1
 };
 
-const FIRE_RATE = 5;
+const PLAYER_FIRE_RATE = 5;
+const DETECTIVE_FIRE_RATE = 24;
+
+let FIRE_RATE = PLAYER_FIRE_RATE;
 let fireRateTime = FIRE_RATE;
 
 let isBow = false;
@@ -237,6 +242,11 @@ function shoot(mouseX, mouseY) {
     BOW.shots.push(shot);
     send();
 
+    fireRateTime = 0;
+    if(isDetectiveBow) {
+        startChargingBar();
+    }
+
     arrows--;
     gameBoard.setString("arrows", arrows);
 }
@@ -247,7 +257,7 @@ function checkBowCollision() {
     const isCollision = Hitbox.isCollision(hitbox.coins, dBowHitbox, playerPos, dBowPos);
 
     if(isCollision) {
-        socket.emit("take-detective-bow", {gameCode: PLAYER.gameCode, playerCode: PLAYER.playerCode});
+        socket.emit("detective-bow-taken", {gameCode: PLAYER.gameCode, playerCode: PLAYER.playerCode});
     }
 }
 
@@ -269,6 +279,22 @@ function dropDetectiveBow(xPos, yPos) {
     gameBoard.setDivColor("detective", COLOR_RED);
 }
 
+function getDetectiveBow() {
+    isDetectiveBow = true;
+    isBow = true;
+    arrows = 1;
+
+    FIRE_RATE = DETECTIVE_FIRE_RATE;
+    fireRateTime = FIRE_RATE;
+    
+    gameBoard.removeDiv("coins");
+    gameBoard.removeDiv("arrows");
+
+    gameBoard.addDiv("bow", "Łuk");
+    gameBoard.setString("bow", "Gotowy");
+    gameBoard.setColor("bow", COLOR_GREEN);
+}
+
 function drawShot(x, y, angle) {
     arrowTex.drawRotated(x, y, angle);
 }
@@ -280,6 +306,22 @@ function renderShots() {
         if (shot.destroyed) {
             BOW.shots.splice(s, 1);
             send();
+        }
+    }
+}
+
+function updateFireRate() {
+    BOW.charged = fireRateTime >= FIRE_RATE;
+    
+    if(time % 5 == 0 && fireRateTime < FIRE_RATE) {
+        fireRateTime++;
+        updateChargingBar(fireRateTime);
+
+        if(isDetectiveBow && fireRateTime == FIRE_RATE) {
+            setTimeout(function() {
+                arrows++;
+                stopChargingBar();
+            }, 400);
         }
     }
 }

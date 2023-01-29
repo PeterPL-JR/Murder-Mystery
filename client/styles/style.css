@@ -31,7 +31,7 @@ canvas {
 }
 
 .board {
-    width: 280px;
+    width: 300px;
     height: max-content;
 
     background-color: #0008;
@@ -53,6 +53,10 @@ canvas {
     margin-left: -10px;
     margin-right: -10px;
 }
+.board > div > div {
+    float: left;
+    margin-right: 8px;
+}
 .board > div > span {
     color: #65ff65;
     font-weight: bold;
@@ -67,4 +71,24 @@ hr {
 
 #button-div {
     text-align: center;
+}
+
+#bow div {
+    float: left;
+}
+#progress-bar {
+    margin-top: 5px;
+    float: left;
+}
+#progress-bar div {
+    float: left;
+    width: 28px;
+    height: 20px;
+
+    outline: solid #989898 1px;
+    margin-right: 5px;
+}
+#progress-bar div:first-child {
+    background-color: #ff6565; 
+    outline: none;
 }

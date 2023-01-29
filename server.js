@@ -74,7 +74,7 @@ function setEvents(socket) {
     socket.on("defeat-player", function (data) {
         defeatPlayer(data.defeatedCode, data.gameCode, data.murdererCode);
     });
-    socket.on("take-detective-bow", function(data) {
+    socket.on("detective-bow-taken", function(data) {
         takeDetectiveBow(data.gameCode, data.playerCode);
     });
 }
@@ -291,8 +291,9 @@ function takeDetectiveBow(gameCode, playerCode) {
 
     room.detectiveBowPlayer = playerIndex;
     for (let playerSocket of room.sockets) {
-        playerSocket.emit("take-detective-bow");
+        playerSocket.emit("detective-bow-taken");
     }
+    room.sockets[playerIndex].emit("take-detective-bow");
 }
 
 function dropDetectiveBow(room, defeatedPlayer) {
@@ -301,7 +302,7 @@ function dropDetectiveBow(room, defeatedPlayer) {
 
     room.detectiveBowPlayer = null;
     for (let playerSocket of room.sockets) {
-        playerSocket.emit("drop-detective-bow", {xPos, yPos});
+        playerSocket.emit("detective-bow-dropped", {xPos, yPos});
     }
 }
 

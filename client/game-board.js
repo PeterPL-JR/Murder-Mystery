@@ -1,6 +1,8 @@
 let overlayDiv = document.getElementById("overlay-div");
 let gameBoard, lobbyBoard;
 
+let progressBar = null;
+
 const ROLE_INNOCENT = 0;
 const ROLE_MURDERER = 1;
 const ROLE_DETECTIVE = 2;
@@ -53,6 +55,73 @@ class Board {
     setString(id, string) {
         this.boardDataDivs[id].innerHTML = string;
     }
+
+    addDiv(id, title) {
+        if(Object.keys(this.boardDivs).indexOf(id) != -1) return;
+
+        let div = document.createElement("div");
+        div.innerHTML = `<div>${title}:</div><span></span>`;
+        div.id = id;
+        this.div.appendChild(div);
+
+        this.boardDivs[id] = div;
+        this.boardDataDivs[id] = div.querySelector("span");
+    }
+    removeDiv(id) {
+        let div = this.boardDivs[id];
+        if(div) div.remove();
+    }
+}
+
+class ProgressBar {
+    static _ELEMS = 4;
+
+    constructor(maxTime) {
+        this.maxTime = maxTime;
+        this.elems = [];
+        this.init();
+    }
+    init() {
+        this.div = document.createElement("div");
+        this.div.id = "progress-bar";
+
+        for(let i = 0; i < ProgressBar._ELEMS; i++) {
+            let div = document.createElement("div");
+            this.div.appendChild(div);
+            this.elems.push(div);
+        }
+    }
+    update(time, span) {
+        const percent = Math.floor(time * 100 / this.maxTime);
+        const coloredDivsAmount = Math.floor(percent / (100 / ProgressBar._ELEMS));
+
+        const colors = [COLOR_RED, COLOR_YELLOW, COLOR_GREEN, COLOR_GREEN];
+        const color = colors[coloredDivsAmount - 1];
+        
+        const percentString = percent.toString();
+        let displayedPercent = 0;
+
+        if(percentString.length == 2) {
+            displayedPercent = percentString[0] + "0";
+        }
+        if(percentString.length == 3) {
+            displayedPercent = 100;
+        }
+
+        span.style.color = color;
+        span.innerHTML = displayedPercent + "%";
+
+        for(let i = 0; i < coloredDivsAmount; i++) {
+            this.elems[i].style.backgroundColor = color;
+            this.elems[i].style.outline = "none";
+        }
+    }
+    append(boardDiv, elemAfter) {
+        boardDiv.insertBefore(this.div, elemAfter);
+    }
+    remove() {
+        this.div.remove();
+    }
 }
 
 function initBoards() {
@@ -65,4 +134,26 @@ function initBoards() {
     gameBoard.setColor("arrows", COLOR_YELLOW);
     gameBoard.setColor("coins", COLOR_YELLOW);
     lobbyBoard.setColor("game-code", COLOR_YELLOW);
+}
+
+function startChargingBar() {
+    progressBar = new ProgressBar(FIRE_RATE);
+    
+    const boardDiv = gameBoard.boardDivs['bow'];
+    const elemAfter = gameBoard.boardDataDivs['bow'];
+    progressBar.append(boardDiv, elemAfter);
+    
+    gameBoard.setString("bow", "0%");
+    gameBoard.setColor("bow", COLOR_RED);
+}
+function stopChargingBar() {
+    progressBar.remove();
+
+    gameBoard.setString("bow", "Gotowy");
+    gameBoard.setColor("bow", COLOR_GREEN);
+}
+
+function updateChargingBar(fireRateTime) {
+    const span = gameBoard.boardDataDivs['bow'];
+    progressBar.update(fireRateTime, span);
 }

@@ -34,6 +34,9 @@ function startGame(data) {
     createMapCoins(data.coins);
 
 	PLAYER.role = data.role;
+    if(PLAYER.role == ROLE_DETECTIVE) {
+        getDetectiveBow();
+    }
     gameBoard.setString("role", ROLES_NAMES[PLAYER.role]);
     gameBoard.setColor("role", ROLES_COLORS[PLAYER.role]);
 

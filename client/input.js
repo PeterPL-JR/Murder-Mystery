@@ -62,7 +62,6 @@ function mouseUp(event) {
         let mouseY = getMouseY(event);
         if(BOW.charged && BOW.leftButton) {
             shoot(mouseX, mouseY);
-            fireRateTime = 0;
         }
         BOW.leftButton = false;
         send();
