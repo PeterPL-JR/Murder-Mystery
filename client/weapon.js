@@ -256,11 +256,17 @@ function takeDetectiveBow() {
         detectiveBow.destroy();
     }
     detectiveBow = null;
+
+    gameBoard.setDivString("detective", "Łuk podniesiony");
+    gameBoard.setDivColor("detective", COLOR_GREEN);
 }
 function dropDetectiveBow(xPos, yPos) {
     const x = xPos + PLAYER_SIZE / 2 - D_BOW_SIZE / 2;
     const y = yPos + PLAYER_SIZE / 2 - D_BOW_SIZE / 2;
     detectiveBow = new DetectiveBow(x, y);
+
+    gameBoard.setDivString("detective", "Łuk wyrzucony");
+    gameBoard.setDivColor("detective", COLOR_RED);
 }
 
 function drawShot(x, y, angle) {

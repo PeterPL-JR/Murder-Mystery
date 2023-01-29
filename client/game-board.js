@@ -40,10 +40,14 @@ class Board {
             this.boardDataDivs[div.id] = div.querySelector("span");
         }
     }
+    setDivColor(id, color) {
+        this.boardDivs[id].style.color = color;
+    }
     setColor(id, color) {
         this.boardDataDivs[id].style.color = color;
     }
     setDivString(id, string) {
+        this.boardDivs[id].style.fontWeight = "bold";
         this.boardDivs[id].innerHTML = string;
     }
     setString(id, string) {
