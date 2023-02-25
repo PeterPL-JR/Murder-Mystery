@@ -167,7 +167,12 @@ function draw() {
 
     // Renderowanie Gracza
     drawPlayer(X_OFFSET, Y_OFFSET, PLAYER, BOW, SWORD);
-}
+
+    if(compass != null && PLAYER.role == ROLE_INNOCENT) {
+        compass.update(PLAYER.x, PLAYER.y);
+        compass.render();
+    }
+}   
 
 function update() {
     requestAnimationFrame(update);

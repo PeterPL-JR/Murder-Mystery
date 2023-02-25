@@ -162,6 +162,7 @@ function drawNick(nick, x, y, color, overlayColor) {
     ctx.font = "bold 40px Verdana";
     ctx.fillStyle = color;
     ctx.textAlign = "center";
+    ctx.lineWidth = 1;
     ctx.fillText(nick, x, y);
 
     ctx.strokeStyle = overlayColor;

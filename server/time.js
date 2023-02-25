@@ -1,7 +1,7 @@
 const LOBBY_MINUTES = 1;
 const LOBBY_SECONDS = 30;
 
-const GAME_MINUTES = 1;
+const GAME_MINUTES = 5;
 const GAME_SECONDS = 0;
 
 class Timer {

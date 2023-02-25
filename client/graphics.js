@@ -163,3 +163,29 @@ function createImage(path) {
     image.src = "images/" + path;
     return image;
 }
+
+function drawCircle(x, y, radius, color, borderColor=color, borderWidth=1) {
+    ctx.beginPath();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = borderWidth;
+
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.closePath();
+}
+
+function drawArrow(x, y, baseSize, height, color) {
+    ctx.beginPath();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+
+    ctx.moveTo(x - baseSize / 2, y);
+    ctx.lineTo(x + baseSize / 2, y);
+    ctx.lineTo(x, y - height);
+    
+    ctx.fill();
+    ctx.closePath();
+}

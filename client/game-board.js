@@ -73,6 +73,46 @@ class Board {
     }
 }
 
+const COMPASS_RADIUS = 42;
+const COMPASS_BORDER_WIDTH = 11;
+
+const COMPASS_X = WIDTH - COMPASS_RADIUS - COMPASS_BORDER_WIDTH - 20;
+const COMPASS_Y = HEIGHT - COMPASS_RADIUS - COMPASS_BORDER_WIDTH - 20;
+
+const COMPASS_COLOR = "#242424";
+const COMPASS_BORDER_COLOR = "gray";
+const COMPASS_BOTTOM_COLOR = "#3d3d3d";
+
+const NORTH_ARROW_COLOR = "red";
+const SOUTH_ARROW_COLOR = "white";
+
+const ARROW_BASE_SIZE = 14;
+const ARROW_HEIGHT = COMPASS_RADIUS - 10;
+
+class Compass {
+    constructor(bowX, bowY) {
+        this.bowX = bowX;
+        this.bowY = bowY;
+        this.angle = 0;
+    }
+    update(playerX, playerY) {
+        this.angle = Math.atan2(playerY - this.bowY, playerX - this.bowX) - Math.PI / 2;
+    }
+    render() {
+        drawCircle(COMPASS_X, COMPASS_Y + 10, COMPASS_RADIUS + COMPASS_BORDER_WIDTH / 2, COMPASS_BOTTOM_COLOR);
+        drawCircle(COMPASS_X, COMPASS_Y, COMPASS_RADIUS, COMPASS_COLOR, COMPASS_BORDER_COLOR, COMPASS_BORDER_WIDTH);
+
+        ctx.translate(COMPASS_X, COMPASS_Y);
+        ctx.rotate(this.angle);
+        
+        drawArrow(0, 0, ARROW_BASE_SIZE, ARROW_HEIGHT, NORTH_ARROW_COLOR);
+        drawArrow(0, 0, ARROW_BASE_SIZE, -ARROW_HEIGHT, SOUTH_ARROW_COLOR);
+        
+        ctx.rotate(-this.angle);
+        ctx.translate(-COMPASS_X, -COMPASS_Y);
+    }
+}
+
 class ProgressBar {
     static _ELEMS = 4;
 

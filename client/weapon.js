@@ -15,6 +15,7 @@ const D_BOW_OVERLAY_COLOR = "white";
 
 let isDetectiveBow = false;
 let detectiveBow = null;
+let compass = null;
 
 const dBowHitbox = new Hitbox({
     rectangle: null,
@@ -265,6 +266,9 @@ function takeDetectiveBow() {
     if(detectiveBow != null) {
         detectiveBow.destroy();
     }
+    delete compass;
+    compass = null;
+
     detectiveBow = null;
 
     gameBoard.setDivString("detective", "Łuk podniesiony");
@@ -274,6 +278,7 @@ function dropDetectiveBow(xPos, yPos) {
     const x = xPos + PLAYER_SIZE / 2 - D_BOW_SIZE / 2;
     const y = yPos + PLAYER_SIZE / 2 - D_BOW_SIZE / 2;
     detectiveBow = new DetectiveBow(x, y);
+    compass = new Compass(x, y);
 
     gameBoard.setDivString("detective", "Łuk wyrzucony");
     gameBoard.setDivColor("detective", COLOR_RED);
