@@ -207,6 +207,10 @@ function update() {
     if(detectiveBow != null) {
         detectiveBow.update();
     }
+    
+    if(displayTitle) {
+        updateTitleScreen();
+    }
 
     draw(); // Renderowanie gry
 }

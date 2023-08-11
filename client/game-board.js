@@ -13,6 +13,7 @@ const COLOR_YELLOW = "#ffff65";
 const COLOR_RED = "#ff6565";
 const COLOR_AQUA = "#65ffff";
 const COLOR_GRAY = "#969696";
+const COLOR_GOLD = "#FFD720";
 
 const ROLES_COLORS = [];
 const ROLES_NAMES = [];

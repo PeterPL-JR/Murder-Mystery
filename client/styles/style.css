@@ -92,3 +92,24 @@ hr {
     background-color: #ff6565; 
     outline: none;
 }
+
+#title, #sub-title {
+    text-align: center;
+    text-shadow: 1px 1px 1px black;
+
+    font-weight: bold;
+    font-family: 'Verdana';
+    opacity: 1;
+
+    position: relative;
+    z-index: 5;
+    top: -100px;
+    display: none;
+}
+#title {
+    font-size: 90px;
+    height: 110px;
+}
+#sub-title {
+    font-size: 50px;
+}

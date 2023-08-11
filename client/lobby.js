@@ -32,8 +32,12 @@ function removeAdminButton() {
 function startGame(data) {
     gameStarted = true;
     createMapCoins(data.coins);
-
 	PLAYER.role = data.role;
+    
+    if(PLAYER.role == ROLE_INNOCENT) setTitleScreen(INNOCENT_TITLE);
+    if(PLAYER.role == ROLE_DETECTIVE) setTitleScreen(DETECTIVE_TITLE);
+    if(PLAYER.role == ROLE_MURDERER) setTitleScreen(MURDERER_TITLE);
+    
     if(PLAYER.role == ROLE_DETECTIVE) {
         getDetectiveBow();
     }
