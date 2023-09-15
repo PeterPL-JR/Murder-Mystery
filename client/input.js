@@ -39,40 +39,44 @@ function keyUp(event) {
         send();
     }
     if (key == "F") {
-        BOW.shooting = false;
-        BOW.leftButton = false;
-        PLAYER.direction = BOW.shootingDirIndex;
+        SHOTGUN.shooting = false;
+        SHOTGUN.leftButton = false;
+        PLAYER.direction = SHOTGUN.shootingDirIndex;
         send();
     }
 }
 
 // Zdarzenia Myszy
 function mouseDown(event) {
-    if(!BOW.shooting && !PLAYER.dead && event.button == 0) {
+    if(!SHOTGUN.shooting && !PLAYER.dead && isPlayerReady() && event.button == 0) {
         swordAttack();
     }
-    if (BOW.shooting && isPlayerReady() && event.button == 0) {
-        BOW.leftButton = true;
+    if (SHOTGUN.shooting && isPlayerReady() && event.button == 0) {
+        SHOTGUN.leftButton = true;
         send();
     }
 }
 function mouseUp(event) {
-    if (BOW.shooting && !PLAYER.dead && event.button == 0) {
+    if (SHOTGUN.shooting && !PLAYER.dead && event.button == 0) {
         let mouseX = getMouseX(event);
         let mouseY = getMouseY(event);
-        if(BOW.charged && BOW.leftButton) {
-            shoot(mouseX, mouseY);
+        if(SHOTGUN.charged && SHOTGUN.leftButton) {
+            if(PLAYER.role == ROLE_MURDERER) {
+                throwSword(mouseX, mouseY);
+            } else {
+                shoot(mouseX, mouseY);
+            }
         }
-        BOW.leftButton = false;
+        SHOTGUN.leftButton = false;
         send();
     }
 }
 function mouseMove(event) {
     let mouseX = getMouseX(event);
-    BOW.shootingDirIndex = (mouseX < WIDTH / 2) ? 1 : 0;
+    SHOTGUN.shootingDirIndex = (mouseX < WIDTH / 2) ? 1 : 0;
     
-    if(BOW.shooting) {
-        PLAYER.direction = BOW.shootingDirIndex;
+    if(SHOTGUN.shooting) {
+        PLAYER.direction = SHOTGUN.shootingDirIndex;
     }
     send();
 }

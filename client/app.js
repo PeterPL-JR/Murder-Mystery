@@ -90,7 +90,7 @@ function setGameEvents() {
         gameBoard.setString("role", ROLES_NAMES[ROLE_DEAD]);
         gameBoard.setColor("role", ROLES_COLORS[ROLE_DEAD]);
 
-        gameBoard.removeDiv("bow");
+        gameBoard.removeDiv("shotgun");
         gameBoard.div.querySelector("hr:last-child").remove();
     });
     socket.on("defeat-detective", function() {
@@ -166,7 +166,7 @@ function draw() {
     drawNick(PLAYER.nick, WIDTH / 2, Y_OFFSET - 18, PLAYER_NICK_COLOR, PLAYER_OVERLAY_NICK_COLOR);
 
     // Renderowanie Gracza
-    drawPlayer(X_OFFSET, Y_OFFSET, PLAYER, BOW, SWORD);
+    drawPlayer(X_OFFSET, Y_OFFSET, PLAYER, SHOTGUN, SWORD);
 
     if(compass != null && PLAYER.role == ROLE_INNOCENT) {
         compass.update(PLAYER.x, PLAYER.y);
@@ -177,7 +177,7 @@ function draw() {
 function update() {
     requestAnimationFrame(update);
     // Poruszanie się gracza
-    if (!BOW.shooting && !SWORD.swordAttack) {
+    if (!SHOTGUN.shooting && !SWORD.swordAttack) {
         playerMoving();
     }
     time++; // Aktualizowanie czasu gry
@@ -185,15 +185,15 @@ function update() {
     // Strzelanie z łuku
     updateFireRate();
 
-    if (keys["F"] && !PLAYER.dead && gameStarted) BOW.shooting = keys["F"];
-    else BOW.shooting = false;
+    if (keys["F"] && !PLAYER.dead && gameStarted) SHOTGUN.shooting = keys["F"];
+    else SHOTGUN.shooting = false;
 
     if(!isPlayerReady()) {
-        BOW.shooting = false;
+        SHOTGUN.shooting = false;
     }
 
     // Sprawdzanie kolizji z monetami
-    if(!PLAYER.dead && !isDetectiveBow) {
+    if(!PLAYER.dead && PLAYER.role == ROLE_INNOCENT && !isDetectiveBow) {
         checkCoinCollision(PLAYER.x, PLAYER.y);
     }
     if(!PLAYER.dead && PLAYER.role == ROLE_INNOCENT && detectiveBow != null) {

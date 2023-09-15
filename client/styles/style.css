@@ -82,7 +82,7 @@ hr {
 }
 #progress-bar div {
     float: left;
-    width: 28px;
+    width: 24px;
     height: 20px;
 
     outline: solid #989898 1px;

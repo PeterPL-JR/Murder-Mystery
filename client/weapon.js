@@ -5,9 +5,15 @@ const D_BOW_SIZE = 112;
 const D_BOW_FRAME_TIME = 9;
 const D_BOW_MAX_FRAMES = 8;
 
-const SHOT_SPEED = 35;
-const SHOT_DISTANCE = TILE_SIZE * 15;
+const ARROW_SPEED = 35;
+const ARROW_DISTANCE = TILE_SIZE * 15;
+
+const SWORD_SPEED = 20;
+const SWORD_DISTANCE = TILE_SIZE * 7;
+
 const arrowTex = new ImgAsset("arrow.png", ARROW_SIZE, ARROW_SIZE);
+const swordTex = new ImgAsset("sword.png", ARROW_SIZE, ARROW_SIZE);
+
 const dBowImage = createImage("bow.png");
 
 const D_BOW_COLOR = COLOR_AQUA;
@@ -23,7 +29,7 @@ const dBowHitbox = new Hitbox({
     height: D_BOW_SIZE
 });
 
-const BOW = {
+const SHOTGUN = {
     shooting: false,
     shootingDirIndex: -1,
     leftButton: false,
@@ -38,6 +44,7 @@ const SWORD = {
 
 const PLAYER_FIRE_RATE = 5;
 const DETECTIVE_FIRE_RATE = 24;
+const MURDERER_FIRE_RATE = 34;
 
 let FIRE_RATE = PLAYER_FIRE_RATE;
 let fireRateTime = FIRE_RATE;
@@ -45,31 +52,40 @@ let fireRateTime = FIRE_RATE;
 let isBow = false;
 let arrows = 0;
 
+let swordOnHand = true;
+
 const WEAPON_DEFAULT = 1;
 const WEAPON_ACTIVE = 0;
 let weaponTextures = {};
 
-class ArrowShot {
-    constructor(startX, startY, angle) {
+class Projectile {
+    constructor(startX, startY, angle, texture, speed, maxDistance) {
         this.startX = startX;
         this.startY = startY;
         this.angle = angle;
 
-        this.xSpeed = Math.cos(angle) * SHOT_SPEED;
-        this.ySpeed = Math.sin(angle) * SHOT_SPEED;
+        this.speed = speed;
+        this.maxDistance = maxDistance;
+
+        this.xSpeed = Math.cos(angle) * speed;
+        this.ySpeed = Math.sin(angle) * speed;
 
         this.xPos = startX - TILE_SIZE / 2;
         this.yPos = startY - TILE_SIZE / 2;
         this.destroyed = false;
+        this.fallen = false;
+        this.texture = texture;
 
         this.hitbox = new ShotHitbox(ARROW_HITBOX_SIZE, this.angle, ARROW_SIZE);
     }
     update() {
+        if(this.fallen) return;
+
         this.xPos += this.xSpeed;
         this.yPos += this.ySpeed;
 
-        if (this.getDistance() >= SHOT_DISTANCE) {
-            this.destroy();
+        if (this.getDistance() >= this.maxDistance) {
+            this.fall();
         }
 
         ctx.fillStyle = "red";
@@ -83,17 +99,17 @@ class ArrowShot {
         else {
             let type = tilesNames[tile.type];
             if (tilesSolid[tile.type] && type != "water" && type != "rock") {
-                this.destroy();
+                this.fall();
             }
         }
-
-        let renderX = getX(this.xPos);
-        let renderY = getY(this.yPos);
-
-        drawShot(renderX, renderY, this.angle);
-        send();
-
         this.updateAttack();
+    }
+    render() {
+        drawShot(this, this.texture);
+    }
+
+    fall() {
+        this.fallen = true;
     }
     destroy() {
         this.destroyed = true;
@@ -112,6 +128,48 @@ class ArrowShot {
         let xPos = this.xPos - this.startX;
         let yPos = this.yPos - this.startY;
         return Math.sqrt(Math.pow(xPos, 2) + Math.pow(yPos, 2))
+    }
+
+    static get(mouseX, mouseY) {
+        let playerCenterX = PLAYER.x + PLAYER_SIZE / 2;
+        let playerCenterY = PLAYER.y + PLAYER_SIZE / 2;
+    
+        let xPos = mouseX + PLAYER.x - X_OFFSET;
+        let yPos = mouseY + PLAYER.y - Y_OFFSET;
+    
+        let xLength = xPos - playerCenterX;
+        let yLength = yPos - playerCenterY;
+    
+        let angle = Math.atan2(yLength, xLength);
+        return {x: playerCenterX, y: playerCenterY, angle};
+    }
+}
+
+class ArrowShot extends Projectile {
+    constructor(startX, startY, angle) {
+        super(startX, startY, angle, arrowTex, ARROW_SPEED, ARROW_DISTANCE);
+    }
+    fall() {
+        super.fall();
+
+        const DESTROY_TIME = 10000;
+        let destroyFun = this.destroy.bind(this);
+
+        setTimeout(destroyFun, DESTROY_TIME);
+    }
+}
+class SwordThrow extends Projectile {
+    constructor(startX, startY, angle) {
+        super(startX, startY, angle, swordTex, SWORD_SPEED, SWORD_DISTANCE);
+    }
+    update() {
+        if(this.fallen && this.toDestroy()) {
+            this.destroy();
+        }
+        super.update();
+    }
+    toDestroy() {
+        return swordOnHand;
     }
 }
 
@@ -229,27 +287,30 @@ function renderAttack() {
 function shoot(mouseX, mouseY) {
     if(!gameStarted) return;
 
-    let playerCenterX = PLAYER.x + PLAYER_SIZE / 2;
-    let playerCenterY = PLAYER.y + PLAYER_SIZE / 2;
+    let projectile = Projectile.get(mouseX, mouseY);
+    SHOTGUN.shots.push(new ArrowShot(projectile.x, projectile.y, projectile.angle));
+    handleProjectile();
+    
+    arrows--;
+    gameBoard.setString("arrows", arrows);
+}
+function throwSword(mouseX, mouseY) {
+    if(!gameStarted) return;
+    
+    let projectile = Projectile.get(mouseX, mouseY);
+    SHOTGUN.shots.push(new SwordThrow(projectile.x, projectile.y, projectile.angle));
+    handleProjectile();
 
-    let xPos = mouseX + PLAYER.x - X_OFFSET;
-    let yPos = mouseY + PLAYER.y - Y_OFFSET;
+    swordOnHand = false;
+}
 
-    let xLength = xPos - playerCenterX;
-    let yLength = yPos - playerCenterY;
-
-    let angle = Math.atan2(yLength, xLength);
-    let shot = new ArrowShot(playerCenterX, playerCenterY, angle);
-    BOW.shots.push(shot);
+function handleProjectile() {
     send();
 
     fireRateTime = 0;
-    if(isDetectiveBow) {
+    if(isDetectiveBow || PLAYER.role == ROLE_MURDERER) {
         startChargingBar();
     }
-
-    arrows--;
-    gameBoard.setString("arrows", arrows);
 }
 
 function checkBowCollision() {
@@ -295,42 +356,81 @@ function getDetectiveBow() {
     gameBoard.removeDiv("coins");
     gameBoard.removeDiv("arrows");
 
-    gameBoard.addDiv("bow", "Łuk");
-    gameBoard.setString("bow", "Gotowy");
-    gameBoard.setColor("bow", COLOR_GREEN);
+    gameBoard.addDiv("shotgun", "Łuk");
+    gameBoard.setString("shotgun", "Gotowy");
+    gameBoard.setColor("shotgun", COLOR_GREEN);
 }
+function getSwordShotgun() {
+    FIRE_RATE = MURDERER_FIRE_RATE;
+    fireRateTime = FIRE_RATE;
 
-function drawShot(x, y, angle) {
-    arrowTex.drawRotated(x, y, angle);
+    gameBoard.removeDiv("coins");
+    gameBoard.removeDiv("arrows");
+
+    gameBoard.addDiv("shotgun", "Miecz");
+    gameBoard.setString("shotgun", "Gotowy");
+    gameBoard.setColor("shotgun", COLOR_GREEN);
 }
 
 function renderShots() {
-    for (let s = 0; s < BOW.shots.length; s++) {
-        let shot = BOW.shots[s];
+    for (let s = 0; s < SHOTGUN.shots.length; s++) {
+        let shot = SHOTGUN.shots[s];
+        
         shot.update();
+        shot.render();
+
+        if(!shot.fallen) {
+            send();
+        }
         if (shot.destroyed) {
-            BOW.shots.splice(s, 1);
+            SHOTGUN.shots.splice(s, 1);
             send();
         }
     }
 }
 
+function drawShot(shot, texture) {
+    let renderX = getX(shot.xPos);
+    let renderY = getY(shot.yPos);
+
+    texture.drawRotated(renderX, renderY, shot.angle);
+}
+
 function updateFireRate() {
-    BOW.charged = fireRateTime >= FIRE_RATE;
+    SHOTGUN.charged = fireRateTime >= FIRE_RATE;
     
     if(time % 5 == 0 && fireRateTime < FIRE_RATE) {
         fireRateTime++;
         updateChargingBar(fireRateTime);
 
-        if(isDetectiveBow && fireRateTime == FIRE_RATE) {
+        if((isDetectiveBow || PLAYER.role == ROLE_MURDERER) && fireRateTime == FIRE_RATE) {
             setTimeout(function() {
-                arrows++;
+                rechargeShotgun();
                 stopChargingBar();
             }, 400);
         }
     }
 }
 
+function rechargeShotgun() {
+    if(PLAYER.role == ROLE_MURDERER) {
+        swordOnHand = true;
+    } else {
+        arrows++;
+    }
+}
+
 function isPlayerReady() {
+    if(PLAYER.role == ROLE_MURDERER) {
+        return isPlayerReadyForSwordThrowing();
+    } else {
+        return isPlayerReadyForBowShooting();
+    }
+}
+
+function isPlayerReadyForBowShooting() {
     return isBow && arrows > 0;
+}
+function isPlayerReadyForSwordThrowing() {
+    return swordOnHand && !SWORD.swordAttack;
 }

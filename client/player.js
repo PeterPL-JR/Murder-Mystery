@@ -66,7 +66,7 @@ function renderPlayers() {
 
         let xPos = getX(player.x);
         let yPos = getY(player.y);
-        drawPlayer(xPos, yPos, player, playerData.bow, playerData.sword);
+        drawPlayer(xPos, yPos, player, playerData.shotgun, playerData.sword);
 
         if (!gameStarted || PLAYER.dead) {
             let textX = xPos + PLAYER_SIZE / 2;
@@ -74,8 +74,9 @@ function renderPlayers() {
             drawNick(player.nick, textX, textY, PLAYER_NICK_COLOR, PLAYER_OVERLAY_NICK_COLOR);
         }
 
-        for (let shot of playerData.bow.shots) {
-            drawShot(getX(shot.xPos), getY(shot.yPos), shot.angle);
+        for (let shot of playerData.shotgun.shots) {
+            let texture = (player.role == ROLE_MURDERER) ? swordTex : arrowTex;
+            drawShot(shot, texture);
         }
     }
 }
@@ -97,7 +98,7 @@ function drawDeadTextures() {
 function send() {
     const object = {
         player: PLAYER,
-        bow: BOW,
+        shotgun: SHOTGUN,
         sword: SWORD
     };
     socket.emit("update-player", object);
@@ -138,12 +139,13 @@ function drawPlayer(x, y, player, bowObject, swordObject) {
 
     if (!player.dead) {
         if (bowObject.shooting) {
+            let tex = (PLAYER.role == ROLE_MURDERER) ? SWORD_TEX : BOW_TEX;
             let shootingTextures = weaponTextures[bowObject.shootingDirIndex == LEFT ? "left" : "right"];
             let index = bowObject.leftButton ? WEAPON_ACTIVE : WEAPON_DEFAULT;
             if (!bowObject.charged) index = WEAPON_DEFAULT;
 
             xOffset = shootingTextures[index];
-            yOffset = BOW_TEX;
+            yOffset = tex;
         }
         if (swordObject.swordAttack) {
             let attackTextures = weaponTextures[swordObject.swordDirIndex == LEFT ? "left" : "right"];

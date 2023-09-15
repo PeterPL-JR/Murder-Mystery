@@ -121,7 +121,7 @@ function connectPlayer(socket, data) {
             moving: false, // Czy gracz się porusza?
             movingIndex: -1 // Index tekstury ruchu
         },
-        bow: { /*Dane łuku*/
+        shotgun: { /*Dane łuku*/
             shots: [] // Tablica strzał
         },
         sword: {} /*Dane miecza*/
@@ -216,7 +216,7 @@ function updatePlayer(data) {
     player.player.moving = data.player.moving;
     player.player.movingIndex = data.player.movingIndex;
 
-    player.bow = data.bow;
+    player.shotgun = data.shotgun;
     player.sword = data.sword;
 }
 

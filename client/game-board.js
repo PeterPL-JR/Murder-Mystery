@@ -180,21 +180,23 @@ function initBoards() {
 function startChargingBar() {
     progressBar = new ProgressBar(FIRE_RATE);
     
-    const boardDiv = gameBoard.boardDivs['bow'];
-    const elemAfter = gameBoard.boardDataDivs['bow'];
+    const boardDiv = gameBoard.boardDivs['shotgun'];
+    const elemAfter = gameBoard.boardDataDivs['shotgun'];
     progressBar.append(boardDiv, elemAfter);
     
-    gameBoard.setString("bow", "0%");
-    gameBoard.setColor("bow", COLOR_RED);
+    gameBoard.setString("shotgun", "0%");
+    gameBoard.setColor("shotgun", COLOR_RED);
 }
 function stopChargingBar() {
+    if(!progressBar) return;
     progressBar.remove();
-
-    gameBoard.setString("bow", "Gotowy");
-    gameBoard.setColor("bow", COLOR_GREEN);
+    
+    gameBoard.setString("shotgun", "Gotowy");
+    gameBoard.setColor("shotgun", COLOR_GREEN);
 }
 
 function updateChargingBar(fireRateTime) {
-    const span = gameBoard.boardDataDivs['bow'];
+    if(!progressBar) return;
+    const span = gameBoard.boardDataDivs['shotgun'];
     progressBar.update(fireRateTime, span);
 }
